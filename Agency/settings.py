@@ -53,6 +53,8 @@ INSTALLED_APPS = [#safa
     
     
 ]
+
+
 AUTH_USER_MODEL ='account.User' #sedra
 
 
@@ -90,21 +92,31 @@ WSGI_APPLICATION = 'Agency.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
-#DATABASES = {
-   # 'default': {
-       # 'ENGINE': 'django.db.backends.postgresql',
-      #  'NAME': 'viawise1',
-     #   'USER':'postgres',
-    #    'PASSWORD':'123456',
-   #     'HOST':'localhost', ##هون 
-  #      'POST':'5432'
- #   }
-#} 
+'''
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'VIAWISE',
+        'USER':'postgres',
+        'PASSWORD':'1234',
+        'HOST':'localhost', ##هون 
+        'POST':'5432'
+    }
+} 
+'''
+'''
 DATABASES  = {
     "default": dj_database_url.parse(os.environ.get("DATABASE_URL")) 
               
               }
+'''
+
+DATABASES  = {
+            'default':dj_database_url.parse('postgres://viawais1_user:MsnUtwnQZhtMgRwDoSIoPFUhVRm2jwpR@dpg-cofphgev3ddc739ngta0-a.oregon-postgres.render.com/viawais1')  
+              }
+
+
+
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 

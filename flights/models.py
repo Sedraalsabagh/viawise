@@ -105,6 +105,9 @@ class FlightSchedule(models.Model):
     flight = models.ForeignKey(Flight, on_delete=models.CASCADE)
     airport = models.ForeignKey(Airport, on_delete=models.CASCADE)
     duration = models.DurationField()
+    comment = models.TextField(max_length=2000, default="", blank=False)
+
+
 
     def __str__(self):
         return f"{self.flight} - {self.airport}"
