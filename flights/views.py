@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from .models import Flight,Airline,SeatType,Review
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Avg
-from .serializer import FlightSerializer,SeatSerializer
+from .serializer import FlightSerializer,SeatSerializer,ReviewSerializer
 from .filters import FlightsFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import AccessToken
