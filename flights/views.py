@@ -138,7 +138,7 @@ def delete_review(request,pk):
 def all_users_reviews(request):
     if request.method == 'GET':
         user_reviews = Review.objects.all()
-        serializer = ReviewSerializer(user_profiles, many=True)
+        serializer = ReviewSerializer(user_reviews, many=True)
         return Response(serializer.data)
 
 
