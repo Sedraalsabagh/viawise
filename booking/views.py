@@ -74,11 +74,6 @@ def create_booking(request):
         }
         return Response(response_data, status=status.HTTP_201_CREATED)
 
-
-def get_all_bookings(): 
-        bookings = Booking.objects.all()
-        serializer = BookingSerializer(bookings, many=True)  
-        return serializer.data
         
 @api_view(['POST'])
 def make_payment(request):
