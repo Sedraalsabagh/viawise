@@ -98,7 +98,7 @@ class Airport(models.Model):
     contact_info = models.TextField()
     country = models.CharField(max_length=50)
 
-    def __str__(self):
+    def __str__(self):     
         return self.airport_name
 
 class FlightSchedule(models.Model):

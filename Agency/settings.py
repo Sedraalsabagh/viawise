@@ -35,6 +35,7 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [#safa
     #sedra
+    'jazzmin',
     'account.apps.AccountConfig',
     'django.contrib.admin',
     'django.contrib.auth',
