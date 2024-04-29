@@ -29,7 +29,7 @@ class LoginSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model =UserProfile
-        fields=('age','gender','address')
+        fields=('user','age','gender','address','date_of_birth')
 
         extra_kword={
             
