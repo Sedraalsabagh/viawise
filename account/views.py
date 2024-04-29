@@ -169,3 +169,12 @@ def user_profile(request):
         return Response("Method not allowed", status=405)
     
     
+
+
+
+@api_view(['GET'])
+def all_users_profile(request):
+    if request.method == 'GET':
+        user_profiles = UserProfile.objects.all()
+        serializer = UserProfileSerializer(user_profiles, many=True)
+        return Response(serializer.data)
