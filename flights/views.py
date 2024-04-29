@@ -132,6 +132,16 @@ def delete_review(request,pk):
 
 
 
+
+
+@api_view(['GET'])
+def all_users_reviews(request):
+    if request.method == 'GET':
+        user_reviews = Review.objects.all()
+        serializer = ReviewSerializer(user_profiles, many=True)
+        return Response(serializer.data)
+
+
 class FlightListView(generics.ListAPIView):
     queryset = Flight.objects.all()
     serializer_class = FlightSerializer

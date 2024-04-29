@@ -17,7 +17,7 @@ class ReviewSerializer(serializers.ModelSerializer) :
     class Meta:
        
         model=Review
-        fields="all"
+        fields='__all__'
 
 class FlightSerializer(serializers.ModelSerializer) :
     
