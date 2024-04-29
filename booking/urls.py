@@ -5,7 +5,7 @@ from . import views
 
 urlpatterns = [
 #path('bookings/', BookingView.as_view(), name='create_booking'),
-#path('bookings/', views.Bookingview, name='create_booking'),
+path('all_bookings/', views.get_all_bookings, name='get_all_bookings'),
 path('bookings/', views.create_booking, name='create_booking'),
 path('user-bookings/', UserBookingsAPIView.as_view(), name='user-bookings'),
 path('make_payment/', views.make_payment, name='make_payment'),

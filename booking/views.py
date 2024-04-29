@@ -12,15 +12,9 @@ from rest_framework.permissions import IsAuthenticated
 
 from rest_framework.decorators import api_view
 
-@api_view(['GET', 'POST'])
+@api_view(['POST'])
 def create_booking(request):
-    if request.method == 'GET':
-        # Retrieve all bookings
-        bookings = Booking.objects.all()
-        booking_serializer = BookingSerializer(bookings, many=True)
-        return Response(booking_serializer.data, status=status.HTTP_200_OK)
-    
-    elif request.method == 'POST':
+    if request.method == 'POST':
         booking_data = request.data.get('booking', {})
         passengers_data = request.data.get('passengers', [])  # Accept list of passengers
         
@@ -80,6 +74,12 @@ def create_booking(request):
         }
         return Response(response_data, status=status.HTTP_201_CREATED)
 
+
+def get_all_bookings(): 
+        bookings = Booking.objects.all()
+        serializer = BookingSerializer(bookings, many=True)  
+        return serializer.data
+        
 @api_view(['POST'])
 def make_payment(request):
     booking_id = request.data.get('booking_id')
