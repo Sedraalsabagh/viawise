@@ -5,17 +5,17 @@ from rest_framework.response import Response
 from .models import Flight,Airline,SeatType,Review
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Avg
-from .serializer import FlightSerializer,SeatSerializer,ReviewSerializer
+from .serializer import FlightSerializer,SeatSerializer,ReviewSerializer,OfferSerializer
 from .filters import FlightsFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import AccessToken
 from .filters import FlightsFilter
 from rest_framework import generics
 from rest_framework import viewsets
-
 from rest_framework.views import APIView
 from rest_framework import status
 from django.core.management import call_command
+from .models import Offer
 
 # Create your views here.
 @api_view(['GET'])
@@ -163,3 +163,9 @@ def flight_explor(request):
         flights = Flight.objects.all().order_by('-ratings')  
         serializer = FlightSerializerexplor(flights, many=True)
         return Response(serializer.data) 
+
+@api_view(['GET'])
+def offer_get_all(request):
+    offers = Offer.objects.all()
+    serializer = OfferSerializer(offers, many=True)
+    return Response(serializer.data)    
