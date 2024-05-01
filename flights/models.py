@@ -98,13 +98,16 @@ class Airport(models.Model):
     contact_info = models.TextField()
     country = models.CharField(max_length=50)
 
-    def __str__(self):
+    def __str__(self):     
         return self.airport_name
 
 class FlightSchedule(models.Model):
     flight = models.ForeignKey(Flight, on_delete=models.CASCADE)
     airport = models.ForeignKey(Airport, on_delete=models.CASCADE)
     duration = models.DurationField()
+    comment = models.TextField(max_length=2000, default="", blank=False)
+
+
 
     def __str__(self):
         return f"{self.flight} - {self.airport}"

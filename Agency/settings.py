@@ -35,6 +35,7 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [#safa
     #sedra
+    #'jazzmin',
     'account.apps.AccountConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -53,6 +54,8 @@ INSTALLED_APPS = [#safa
     
     
 ]
+
+
 AUTH_USER_MODEL ='account.User' #sedra
 
 
@@ -94,17 +97,6 @@ WSGI_APPLICATION = 'Agency.wsgi.application'
 #DATABASES = {
    # 'default': {
        # 'ENGINE': 'django.db.backends.postgresql',
-      #  'NAME': 'dpg-cofphgev3ddc739ngta0-a',
-     #   'USER':'viawais1_user',
-    #    'PASSWORD':'MsnUtwnQZhtMgRwDoSIoPFUhVRm2jwpR',
-   #     'HOST':'dpg-cofphgev3ddc739ngta0-a', ##هون 
-  #      'POST':'5432'
- #   }
-#} 
-
-#DATABASES = {
-   # 'default': {
-       # 'ENGINE': 'django.db.backends.postgresql',
       #  'NAME': 'viawise1',
      #   'USER':'postgres',
     #    'PASSWORD':'123456',
@@ -116,9 +108,21 @@ DATABASES  = {
     "default": dj_database_url.parse(os.environ.get("DATABASE_URL")) 
               
               }
+'''
+           
+
+DATABASES  = {
+            'default':dj_database_url.parse('postgres://viawais1_user:MsnUtwnQZhtMgRwDoSIoPFUhVRm2jwpR@dpg-cofphgev3ddc739ngta0-a.oregon-postgres.render.com/viawais1')  
+              }
+
+         
+
+
+
+
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-
+  
 REST_FRAMEWORK = {
 
     'DEFAULT_AUTHENTICATION_CLASSES': (

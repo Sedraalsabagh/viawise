@@ -2,10 +2,10 @@ from django.shortcuts import render
 from django.shortcuts import render,get_object_or_404 
 from rest_framework.decorators import api_view ,permission_classes
 from rest_framework.response import Response
-from .models import Flight,Airline,SeatType
+from .models import Flight,Airline,SeatType,Review
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Avg
-from .serializer import FlightSerializer,SeatSerializer
+from .serializer import FlightSerializer,SeatSerializer,ReviewSerializer
 from .filters import FlightsFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import AccessToken
@@ -130,6 +130,16 @@ def delete_review(request,pk):
         return Response({'error':'Review not found'},status=status.HTTP_404_NOT_FOUND)
 
 
+
+
+
+
+@api_view(['GET'])
+def all_users_reviews(request):
+    if request.method == 'GET':
+        user_reviews = Review.objects.all()
+        serializer = ReviewSerializer(user_reviews, many=True)
+        return Response(serializer.data)
 
 
 class FlightListView(generics.ListAPIView):
