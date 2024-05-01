@@ -35,7 +35,7 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [#safa
     #sedra
-    'jazzmin',
+    #'jazzmin',
     'account.apps.AccountConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -107,15 +107,9 @@ WSGI_APPLICATION = 'Agency.wsgi.application'
 #} 
 
 
-           
-
 DATABASES  = {
             'default':dj_database_url.parse('postgres://viawais1_user:MsnUtwnQZhtMgRwDoSIoPFUhVRm2jwpR@dpg-cofphgev3ddc739ngta0-a.oregon-postgres.render.com/viawais1')  
               }
-
-         
-
-
 
 
 

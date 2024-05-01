@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from faker import Faker
 from random import randint
-from account.models import User
+from account.models import User,UserProfile
 from django.db import IntegrityError
 from ...models import Airline, Airplane, Airport, Flight, FlightSchedule, Policy, RefundedPayment, Review, SeatType
 import random
@@ -19,7 +19,7 @@ NUM_REFUNDED_PAYMENTS = 20
 NUM_REVIEWS = 20
 NUM_SEAT_TYPES = 20
 NUM_BOOKINGS=20
-
+NUM_USERS=20
 class Command(BaseCommand):
     help = "Seed the database with dummy data."
 
@@ -39,6 +39,30 @@ class Command(BaseCommand):
                 cancellation_period=timezone.timedelta(days=randint(0, 30))
             )
 
+        self.stdout.write('Seeding Users...')
+        for _ in range(NUM_USERS):
+            email = faker.email()
+            password = make_password('password123')  # يمكنك توليد كلمة مرور عشوائية هنا
+            user = User.objects.create(
+                first_name=faker.first_name(),
+                last_name=faker.last_name(),
+                username=email,  # استخدم البريد الإلكتروني كاسم مستخدم فريد
+                email=email,
+                password=password,
+                balance=faker.pydecimal(left_digits=5, right_digits=2, positive=True),
+            )
+            UserProfile.objects.create(
+                user=user,
+                #photo='path/to/photo.jpg',  # حدد مسار الصورة هنا
+                gender=faker.random_element(elements=('male', 'female')),
+                age=faker.random_int(min=18, max=80),
+                address=faker.address(),
+                marital_status=faker.random_element(elements=('single', 'married')),
+                occupation=faker.random_element(elements=('entrepreneur', 'engineer', 'teacher', 'doctor', 'student', 'employee', 'artist', 'other'))
+            )
+
+
+
         #   للشركات
         self.stdout.write('Seeding Airlines...')
         for _ in range(NUM_AIRLINES):
@@ -55,6 +79,8 @@ class Command(BaseCommand):
             )
              if not Airline.objects.filter(airline_id=airline.airline_id).exists():
                 airline.save()
+
+
         #   لأنواع المقاعد
         self.stdout.write('Seeding SeatTypes...')
         existing_first_class_capacities = set()
@@ -104,6 +130,7 @@ class Command(BaseCommand):
                 contact_info=faker.text(),
                 country=faker.country()
             )
+
 
         #   للرحلات
         self.stdout.write('Seeding Flights...')
