@@ -14,7 +14,7 @@ from flights.models import Flight#,FlightSeatClass
 # Create your models here.
 
 class PolicyAgency(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    
     modifiable = models.BooleanField()  
     modify_period = models.DurationField(default=timedelta(days=0))  
     cancellable = models.BooleanField()  
@@ -23,6 +23,22 @@ class PolicyAgency(models.Model):
     cancellation_discount_amount = models.DecimalField(max_digits=15, decimal_places=5, default=1)
 
 
+class AgencyPolicy(models.Model):
+    
+    
+    POLICY_CHOICES = (
+        ('modify', 'Modify'),  
+        ('cancel', 'Cancel'),  
+        ('offers', 'Offers'),  
+        ('cancel_without_payment', 'Cancel Without Payment')  
+    )
+    policy_type = models.CharField(max_length=100, choices=POLICY_CHOICES, blank=True, null=True)  
+    percentage = models.DecimalField(max_digits=5, decimal_places=5)  
+    duration = models.DurationField(default=timedelta(days=0)) 
+    points = models.PositiveIntegerField(default=0) 
+
+    def __str__(self):
+        return f"{self.policy_type} policy"
 
 
 class Passenger(models.Model):
@@ -86,7 +102,7 @@ class Booking(models.Model):
                 elif self.passenger_class == 'Business' and (self.outbound_flight.business_remaining == 0 or self.return_flight.business_remaining == 0):
                     raise ValidationError("No business class seats remaining for outbound or return flight.")
 
-        # Calculate total cost based on seat type and class
+       
         price = self.outbound_flight.price_flight
         if self.passenger_class == 'First':
             price *= Decimal('3')
