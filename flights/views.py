@@ -153,3 +153,13 @@ class FlightListView(generics.ListAPIView):
 class SeatViewSet(viewsets.ModelViewSet):
     queryset = SeatType.objects.all()
     serializer_class = SeatSerializer
+
+
+
+@api_view(['GET'])
+def flight_explor(request):
+    
+    if request.method == 'GET':
+        flights = Flight.objects.all().order_by('-ratings')  
+        serializer = FlightSerializerexplor(flights, many=True)
+        return Response(serializer.data) 
