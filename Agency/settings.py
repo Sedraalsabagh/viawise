@@ -49,6 +49,7 @@ INSTALLED_APPS = [#safa
     'booking',
     'django_filters',
     'django_seed',
+    'hotel',
     
     
     
