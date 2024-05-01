@@ -1,21 +1,23 @@
 from rest_framework.authtoken.models import Token
 from django.shortcuts import render
 from django.shortcuts import render
+from django.conf import settings
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.decorators import api_view ,permission_classes
 from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password 
 from rest_framework import status
-from .serializers import SingUpSerializer,LoginSerializer,UserProfileSerializer
+from .serializers import SingUpSerializer,LoginSerializer,UserProfileSerializer,ContactSerializer
 from rest_framework.permissions import IsAuthenticated #لحماية المسارات
-from .models import User,UserProfile
+from .models import User,UserProfile,Contact
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 #from django.contrib.auth.models import User
 from .form import UserEditForm, ProfileEditForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
+from django.core.mail import send_mail
 #import firebase_admin
 #from firebase_admin import messaging
 #from firebase_admin import auth
@@ -178,3 +180,25 @@ def all_users_profile(request):
         user_profiles = UserProfile.objects.all()
         serializer = UserProfileSerializer(user_profiles, many=True)
         return Response(serializer.data)
+
+
+
+
+
+
+
+
+@api_view(['POST'])
+def contact_us(request):
+    serializer = ContactSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        send_mail(
+            'Confirmation Email',
+            'Thank you for contacting us. We will get back to you soon!',
+             settings.EMAIL_HOST_USER,
+            [serializer.data['email']], 
+        )
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
