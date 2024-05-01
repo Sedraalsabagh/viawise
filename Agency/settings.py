@@ -94,6 +94,17 @@ WSGI_APPLICATION = 'Agency.wsgi.application'
 #DATABASES = {
    # 'default': {
        # 'ENGINE': 'django.db.backends.postgresql',
+      #  'NAME': 'dpg-cofphgev3ddc739ngta0-a',
+     #   'USER':'viawais1_user',
+    #    'PASSWORD':'MsnUtwnQZhtMgRwDoSIoPFUhVRm2jwpR',
+   #     'HOST':'dpg-cofphgev3ddc739ngta0-a', ##هون 
+  #      'POST':'5432'
+ #   }
+#} 
+
+#DATABASES = {
+   # 'default': {
+       # 'ENGINE': 'django.db.backends.postgresql',
       #  'NAME': 'viawise1',
      #   'USER':'postgres',
     #    'PASSWORD':'123456',

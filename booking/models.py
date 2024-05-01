@@ -14,6 +14,10 @@ from flights.models import Flight#,FlightSeatClass
 # Create your models here.
 
 
+
+
+
+
 class Passenger(models.Model):
     GENDER_CHOICES = (
         ('Mr','Mr'),
