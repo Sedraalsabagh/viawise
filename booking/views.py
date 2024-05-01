@@ -348,3 +348,73 @@ class BookingView(APIView):
 class PassengerViewSet(viewsets.ModelViewSet):
     queryset = Passenger.objects.prefetch_related('baggages')
     serializer_class = PassengerSerializer
+    
+    
+@api_view(['POST'])
+def cancel_booking(request):
+    if request.method == 'POST':
+        
+        data = request.data
+        username = data.get('username') #pasword 
+        password = data.get('password')
+        booking_id = data.get('booking_id')
+
+        
+        if not all([username, password, booking_id]):
+            return JsonResponse({'success': False, 'message': 'Missing required fields.'})
+
+        
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Invalid username or password.'})
+
+        if not check_password(password, user.password):
+            return JsonResponse({'success': False, 'message': 'Invalid username or password.'})
+
+        
+        try:
+            booking = Booking.objects.get(id=booking_id)
+        except Booking.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Booking not found.'})
+
+        
+        if booking.user != user:
+            return JsonResponse({'success': False, 'message': 'Unauthorized access to booking cancellation.'})
+
+        if booking.status != 'CMP':
+            return JsonResponse({'success': False, 'message': 'The booking is not completed.'})
+
+        
+        try:
+            policy = PolicyAgency.objects.get()
+        except PolicyAgency.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'PolicyAgency not found.'})
+
+        
+        if not policy.cancellable:
+            return JsonResponse({'success': False, 'message': 'Booking cancellation not allowed.'})
+
+        
+        cancellation_period = policy.cancel_period
+
+        
+        if cancellation_period > timedelta(days=0):
+            time_difference = timezone.now() - booking.booking_date
+            if time_difference > cancellation_period:
+                return JsonResponse({'success': False, 'message': 'Cancellation period expired.'})
+
+        
+        booking.status = 'CNL'
+        booking.save()
+
+        
+        refund_amount = booking.total_cost * policy.cancellation_discount_amount
+
+        
+        user.balance += refund_amount
+        user.save()
+
+        return JsonResponse({'success': True, 'message': 'Booking canceled successfully. Refund amount: {}'.format(refund_amount)})
+    else:
+        return JsonResponse({'success': False, 'message': 'Invalid request method.'})    
