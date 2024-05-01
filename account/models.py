@@ -37,19 +37,32 @@ class Customer(models.Model):
 '''
 class UserProfile(models.Model):
     GUNDER_CHOICES=(
-        (1,'male'),
-        (2,'female'),
+        ('male','male'),
+        ('female','female'),
        
+    )
+    MARITAL_STATUS_CHOICES = (
+        ('single', 'single'),
+        ('married', 'married'),
+    )
+    OCCUPATION_CHOICES = (
+        ('entrepreneur', 'Entrepreneur'),
+        ('engineer', 'Engineer'),
+        ('teacher', 'Teacher'),
+        ('doctor', 'Doctor'),
+        ('student', 'Student'),
+        ('employee', 'Employee'),
+        ('artist', 'Artist'),
+        ('other', 'other'),
     )
     user=models.OneToOneField(settings.AUTH_USER_MODEL,
     on_delete=models.CASCADE)
-
-    date_of_birth=models.DateField(blank=True,null=True)
     photo=models.ImageField(upload_to='users%Y/%m/%d/',blank=True)
-    gender=models.SmallIntegerField(choices=GUNDER_CHOICES,null=True)
+    gender=models.CharField(choices=GUNDER_CHOICES,null=True)
     age = models.PositiveSmallIntegerField(blank=True, null=True)
     address=models.CharField(max_length=40,blank=True,null=True)
-
+    marital_status = models.CharField(choices=MARITAL_STATUS_CHOICES, null=True)
+    occupation = models.CharField(max_length=50, choices=OCCUPATION_CHOICES,null=True)
 
     def __str__(self):
         return str(self.photo)

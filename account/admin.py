@@ -9,6 +9,6 @@ admin.site.register(User)
 
 @admin.register(UserProfile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display=['user','date_of_birth','photo']
+    list_display=['user','age','photo']
     raw_id_fields=['user']
    
