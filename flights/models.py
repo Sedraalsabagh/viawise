@@ -67,6 +67,14 @@ class Airplane(models.Model):
 
 
 class Flight(models.Model):
+     
+    DESTIATION_CHOICES = (
+        ('Business', 'Business'),  
+        ('Tourism', 'Tourism'),  
+        ('Education', 'Education'),  
+        ('Entertainment', 'Entertainment')  
+    )
+
     departure_date=models.DateField(default=datetime.now)
    # airline=models.ForeignKey(Airline, on_delete=models.CASCADE,default=1)
     Airplane=models.ForeignKey(Airplane, on_delete=models.CASCADE,default=1)
@@ -85,10 +93,19 @@ class Flight(models.Model):
     first_remaining = models.IntegerField(default=10,null=True)
     business_remaining = models.IntegerField(default=10,null=True)
     price_flight= models.DecimalField(default=10.1, max_digits=10, decimal_places=2)
-   
 
+    destination_activity = models.CharField(max_length=100, blank=True, null=True)
+    destination_type=models.CharField(max_length=100,choices=DESTIATION_CHOICES,blank=True, null=True)
+    destination_climate = models.CharField(max_length=100, blank=True, null=True)
     def __str__(self):
         return str(self.id)
+
+'''
+    activities = models.TextField(blank=True, null=True)
+    temperature = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    rainfall = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+'''
+    
 
 
 class Airport(models.Model):

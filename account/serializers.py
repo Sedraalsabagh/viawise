@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User,UserProfile
+from .models import User,UserProfile,Contact
 
 class SingUpSerializer(serializers.ModelSerializer):
     class Meta:
@@ -38,3 +38,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
               'address':{'required':True,'allow_blank':False},
            
              }
+
+
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        fields = ['name', 'email', 'message']
