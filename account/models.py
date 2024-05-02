@@ -15,6 +15,7 @@ class User(AbstractUser) :
     is_active=models.BooleanField(default=True)
     password=models.CharField(max_length=128)
     balance=models.DecimalField(max_digits=15, decimal_places=5,null=True)
+    pointBalance=models.PositiveIntegerField(default=0)
     #fcm_token = models.CharField(max_length=2000, blank=True, null=True)
 
     #USERNAME-FIELD=='email',
