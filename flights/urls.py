@@ -12,7 +12,7 @@ urlpatterns = [
     path('search/', views. get_all, name='search-flights'),
     path('seed-database/', SeedDatabaseAPIView.as_view(), name='seed-database'),
     path('all_users_reviews/',views.all_users_reviews,name='all_users_reviews'),
-    path('offers/', views.offer_get_all, name='offer'),
+    path('offers/', views.flights_with_offers, name='offer'),
     
 
     ]
