@@ -9,7 +9,8 @@ from datetime import datetime, timedelta
 from account.models import User
 from datetime import timedelta
 from decimal import Decimal
-from flights.models import Flight#,FlightSeatClass
+from flights.models import *
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 
@@ -88,53 +89,67 @@ class Booking(models.Model):
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='PPD')
     total_cost=models.DecimalField(max_digits=15, decimal_places=5,null=True)
     def save(self, *args, **kwargs):
-        if self.outbound_flight:
-            if self.trip_type == 'OW':
-                if self.passenger_class == 'Economy' and self.outbound_flight.economy_remaining == 0:
-                    raise ValidationError("No economy seats remaining for outbound flight.")
-                elif self.passenger_class == 'First' and self.outbound_flight.first_remaining == 0:
-                    raise ValidationError("No first class seats remaining for outbound flight.")
-                elif self.passenger_class == 'Business' and self.outbound_flight.business_remaining == 0:
-                    raise ValidationError("No business class seats remaining for outbound flight.")
-            elif self.trip_type == 'RT' and self.return_flight:
-                if self.passenger_class == 'Economy' and (self.outbound_flight.economy_remaining == 0 or self.return_flight.economy_remaining == 0):
-                    raise ValidationError("No economy seats remaining for outbound or return flight.")
-                elif self.passenger_class == 'First' and (self.outbound_flight.first_remaining == 0 or self.return_flight.first_remaining == 0):
-                    raise ValidationError("No first class seats remaining for outbound or return flight.")
-                elif self.passenger_class == 'Business' and (self.outbound_flight.business_remaining == 0 or self.return_flight.business_remaining == 0):
-                    raise ValidationError("No business class seats remaining for outbound or return flight.")
-
-       
-        price = self.outbound_flight.price_flight
-        if self.passenger_class == 'First':
-            price *= Decimal('3')
-        elif self.passenger_class == 'Business':
-            price *= Decimal('2')
-        self.total_cost = price
-
+        if not self.pk:  
+            self.validate_availability()
+            self.calculate_initial_cost()
+            self.apply_discounts()
+            self.update_seat_count()
+        
         super().save(*args, **kwargs)
+
+    def validate_availability(self):
+        
         if self.outbound_flight:
             if self.trip_type == 'OW':
-                if self.passenger_class == 'Economy':
-                    self.outbound_flight.economy_remaining -= 1
-                elif self.passenger_class == 'First':
-                    self.outbound_flight.first_remaining -= 1
-                elif self.passenger_class == 'Business':
-                    self.outbound_flight.business_remaining -= 1
+                self.check_availability(self.outbound_flight, self.passenger_class)
             elif self.trip_type == 'RT' and self.return_flight:
-                if self.passenger_class == 'Economy':
-                    self.outbound_flight.economy_remaining -= 1
-                    self.return_flight.economy_remaining -= 1
-                elif self.passenger_class == 'First':
-                    self.outbound_flight.first_remaining -= 1
-                    self.return_flight.first_remaining -= 1
-                elif self.passenger_class == 'Business':
-                    self.outbound_flight.business_remaining -= 1
-                    self.return_flight.business_remaining -= 1
+                self.check_availability(self.outbound_flight, self.passenger_class)
+                self.check_availability(self.return_flight, self.passenger_class)
 
+    def check_availability(self, flight, passenger_class):
+        remaining_seats = getattr(flight, f"{passenger_class.lower()}_remaining")
+        if remaining_seats == 0:
+            raise ValidationError(f"No {passenger_class.lower()} class seats remaining for flight {flight.id}.")
+
+    def calculate_initial_cost(self):
+        
+        if self.outbound_flight:
+            price = self.outbound_flight.price_flight
+            multiplier = Decimal('3') if self.passenger_class == 'First' else Decimal('2') if self.passenger_class == 'Business' else Decimal('1')
+            self.total_cost = price * multiplier
+
+    def apply_discounts(self):
+        
+        if self.trip_type == 'RT' and self.return_flight:
+            self.total_cost = self.calculate_discount(self.outbound_flight, self.total_cost)
+            self.total_cost += self.calculate_discount(self.return_flight, self.return_flight.price_flight)
+        elif self.outbound_flight:
+            self.total_cost = self.calculate_discount(self.outbound_flight, self.total_cost)
+
+    def calculate_discount(self, flight, price):
+        offers = Offer.objects.filter(flight=flight, start_date__lte=datetime.now(), end_date__gte=datetime.now())
+        if offers.exists():
+            max_discount = max(offer.discount_percentage for offer in offers)
+            discount_amount = price * Decimal(max_discount) / Decimal(100)
+            return price - discount_amount
+        return price
+
+    def update_seat_count(self):
+        
+        if self.outbound_flight:
+            if self.trip_type == 'OW':
+                self.decrement_seat_count(self.outbound_flight, self.passenger_class)
+            elif self.trip_type == 'RT' and self.return_flight:
+                self.decrement_seat_count(self.outbound_flight, self.passenger_class)
+                self.decrement_seat_count(self.return_flight, self.passenger_class)
             self.outbound_flight.save()
             if self.return_flight:
                 self.return_flight.save()
+
+    def decrement_seat_count(self, flight, passenger_class):
+        attr = f"{passenger_class.lower()}_remaining"
+        current_remaining = getattr(flight, attr)
+        setattr(flight, attr, current_remaining - 1)
                  
 
 
