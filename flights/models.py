@@ -68,11 +68,23 @@ class Airplane(models.Model):
 
 class Flight(models.Model):
      
+   
+    DESTINATION_ACTIVITY = (
+        ('Sightseeing', 'Sightseeing'),  
+        ('Skiing', 'Skiing'),  
+        ('Beach relaxation', 'Beach relaxation'),  
+        
+    )
     DESTIATION_CHOICES = (
         ('Business', 'Business'),  
         ('Tourism', 'Tourism'),  
         ('Education', 'Education'),  
         ('Entertainment', 'Entertainment')  
+    )
+    CLIMATE_CHOICES = (
+        ('Warm', 'Warm'),  
+        ('Cold', 'Cold'),  
+        ('Moderate', 'Moderate'),  
     )
 
     departure_date=models.DateField(default=datetime.now)
@@ -94,9 +106,9 @@ class Flight(models.Model):
     business_remaining = models.IntegerField(default=10,null=True)
     price_flight= models.DecimalField(default=10.1, max_digits=10, decimal_places=2)
 
-    destination_activity = models.CharField(max_length=100, blank=True, null=True)
+    destination_activity = models.CharField(max_length=100, choices=DESTINATION_ACTIVITY,blank=True, null=True)
     destination_type=models.CharField(max_length=100,choices=DESTIATION_CHOICES,blank=True, null=True)
-    destination_climate = models.CharField(max_length=100, blank=True, null=True)
+    destination_climate = models.CharField(max_length=100,choices=CLIMATE_CHOICES, blank=True, null=True)
     def __str__(self):
         return str(self.id)
 
