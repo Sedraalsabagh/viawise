@@ -34,8 +34,8 @@ class AgencyPolicy(models.Model):
         ('cancel_without_payment', 'Cancel Without Payment') ,
         ('cancel_over_week', 'cancel_over_week') 
     )
-    policy_type = models.CharField(max_length=100, choices=POLICY_CHOICES, blank=True, null=True)  
-    percentage = models.DecimalField(max_digits=5, decimal_places=5)  
+    policy_type = models.CharField(max_length=100, choices=POLICY_CHOICES)  
+    percentage = models.DecimalField(max_digits=5, decimal_places=5,default=0)  
     duration = models.DurationField(default=timedelta(days=0)) 
     points = models.PositiveIntegerField(default=0) 
     points_offers= models.PositiveIntegerField(default=0) 
@@ -88,6 +88,7 @@ class Booking(models.Model):
     trip_type = models.CharField(max_length=10, choices=TRIP_TYPE_CHOICES, default='OW')
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='PPD')
     total_cost=models.DecimalField(max_digits=15, decimal_places=5,null=True)
+    creation_time = models.DateTimeField(default=timezone.now)
     def save(self, *args, **kwargs):
         if not self.pk:  
             self.validate_availability()

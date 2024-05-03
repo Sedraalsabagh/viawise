@@ -22,6 +22,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from datetime import datetime
 from decimal import Decimal
+# from celery import shared_task
 
 
 
@@ -251,6 +252,7 @@ def make_payment(request):
    
     user.balance -= total_cost
     user.pointBalance += policy.points_offers
+    print( user.pointBalance)
 
     
     user.save()
@@ -260,6 +262,8 @@ def make_payment(request):
     booking.save()
 
     return Response({"message": "Payment created successfully."}, status=status.HTTP_201_CREATED)
+
+
 
 @api_view(['POST'])
 def make_booking(request): #جد هاد الصج  #اكتر من حدا 
@@ -305,3 +309,19 @@ def make_booking(request): #جد هاد الصج  #اكتر من حدا
             booking = booking_serializer.save()
             return Response({'message': 'Booking created successfully', 'booking_id': booking.id}, status=status.HTTP_201_CREATED)
         return Response(booking_serializer.errors, status=status.HTTP_400_BAD_REQUEST)   
+
+'''
+@shared_task
+def update_booking_status():
+    bookings = Booking.objects.filter(status='PPD')  
+    for booking in bookings:
+        
+        policy = AgencyPolicy.objects.get(policy_type='cancel_without_payment')
+        
+        cancel_time = booking.creation_time + policy.duration
+        
+        if timezone.now() > cancel_time:
+            
+            booking.status = 'CNL'
+            booking.save()
+'''            

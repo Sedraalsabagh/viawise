@@ -4,8 +4,6 @@ from .views import UserBookingsAPIView
 from . import views
 
 urlpatterns = [
-#path('bookings/', BookingView.as_view(), name='create_booking'),
-#path('bookings/', views.Bookingview, name='create_booking'),
 path('make_booking/', views.make_booking, name='create_booking'),
 path('cancel_booking/', views.cancel_booking, name='cancel_booking'),
 path('user-bookings/', UserBookingsAPIView.as_view(), name='user-bookings'),

@@ -111,8 +111,14 @@ DATABASES  = {
             'default':dj_database_url.parse('postgres://viawais1_user:MsnUtwnQZhtMgRwDoSIoPFUhVRm2jwpR@dpg-cofphgev3ddc739ngta0-a.oregon-postgres.render.com/viawais1')  
               }
 
-
-
+'''
+CELERY_BEAT_SCHEDULE = {
+    'update-booking-status': {
+        'task': 'myapp.tasks.update_booking_status',
+        'schedule': timedelta(minutes=15),  
+    },
+}
+'''
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
   
 REST_FRAMEWORK = {
