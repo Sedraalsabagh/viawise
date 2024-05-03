@@ -325,3 +325,63 @@ def update_booking_status():
             booking.status = 'CNL'
             booking.save()
 '''            
+
+@api_view(['POST'])
+def modify_booking(request):
+    if request.method == 'POST':
+        data = request.data
+        username = data.get('username')
+        password = data.get('password')
+        booking_id = data.get('booking_id')
+
+        if not all([username, password, booking_id]):
+            return JsonResponse({'success': False, 'message': 'Missing required fields.'})
+
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Invalid username or password.'})
+
+        if not check_password(password, user.password):
+            return JsonResponse({'success': False, 'message': 'Invalid username or password.'})
+
+        try:
+            booking = Booking.objects.get(id=booking_id)
+        except Booking.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Booking not found.'})
+
+        if booking.user != user:
+            return JsonResponse({'success': False, 'message': 'Unauthorized access to booking modification.'})
+
+        if booking.status != 'CMP':
+            return JsonResponse({'success': False, 'message': 'The booking is not completed.'})
+
+        try:
+            policy = AgencyPolicy.objects.get(policy_type='modify')
+        except AgencyPolicy.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Modification policy not found.'})
+
+
+        
+        refund_amount = booking.total_cost * (policy.percentage / 100)
+
+        booking.status = 'CNL'
+        booking.save()
+
+        user.balance += refund_amount
+        user.save()
+        
+        
+        flight = booking.outbound_flight
+        if passenger_class == 'Economy':
+            flight.economy_remaining += 1
+        elif passenger_class == 'Business':
+            flight.business_remaining += 1
+        elif passenger_class == 'First':
+            flight.first_remaining += 1
+        flight.save()
+
+        return JsonResponse({'success': True, 'message': 'Booking modified successfully. Discount amount: {}'.format(discount_amount)})
+
+    else:
+        return JsonResponse({'success': False, 'message': 'Invalid request method.'})
