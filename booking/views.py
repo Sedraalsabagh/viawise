@@ -262,7 +262,7 @@ def make_payment(request):
     return Response({"message": "Payment created successfully."}, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
-def make_booking(request): #جد هاد الصج 
+def make_booking(request): #جد هاد الصج  #اكتر من حدا 
     if request.method == 'POST':
         booking_data = request.data.get('booking', {})
         passenger_data = request.data.get('passenger', {})
