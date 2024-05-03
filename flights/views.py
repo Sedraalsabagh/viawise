@@ -164,8 +164,4 @@ def flight_explor(request):
         serializer = FlightSerializerexplor(flights, many=True)
         return Response(serializer.data) 
 
-@api_view(['GET'])
-def offer_get_all(request):
-    offers = Offer.objects.all()
-    serializer = OfferSerializer(offers, many=True)
-    return Response(serializer.data)    
+ 
