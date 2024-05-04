@@ -17,8 +17,6 @@ This application is a comprehensive system for booking flights and searching for
 
 ## Technologies Used
 - **Django:** Python framework for web development.
-- **HTML/CSS:** Design and styling of the user interface.
-- **JavaScript:** Enhancing user interaction and experience.
 
 ## Contribution
 We welcome contributions from developers to improve and enhance this application. Please open a pull request with any improvements or fixes you deem necessary.
