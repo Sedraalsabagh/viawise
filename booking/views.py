@@ -22,7 +22,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from datetime import datetime
 from decimal import Decimal
-# from celery import shared_task
+# from celery import shared_task #
 
 
 
@@ -374,11 +374,17 @@ def modify_booking(request):
         
         flight = booking.outbound_flight
         if passenger_class == 'Economy':
+            
             flight.economy_remaining += 1
+            
         elif passenger_class == 'Business':
+            
             flight.business_remaining += 1
+            
         elif passenger_class == 'First':
+            
             flight.first_remaining += 1
+            
         flight.save()
 
         return JsonResponse({'success': True, 'message': 'Booking modified successfully. Discount amount: {}'.format(discount_amount)})
