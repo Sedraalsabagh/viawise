@@ -249,22 +249,31 @@ def make_payment(request):
         user=user
     )
 
-    
     user.pointBalance += policy.points_offers
-    user.save()
-
+    
     
     if user.pointBalance >= policy.points:
        
         discount_amount = total_cost * (policy.percentage / 100)
+        
         user.balance -= discount_amount
-        user.save()
+        
+        user.pointBalance -= policy.points
+        
+    else:
+        
+        user.balance -= total_cost
+
+    
+    user.save()
 
     
     booking.status = 'CMP'
     booking.save()
 
     return Response({"message": "Payment created successfully."}, status=status.HTTP_201_CREATED)
+
+
 
 
 

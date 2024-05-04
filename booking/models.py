@@ -34,7 +34,8 @@ class AgencyPolicy(models.Model):
         ('cancel_without_payment', 'Cancel Without Payment') ,
         ('cancel_over_week', 'cancel_over_week') 
     )
-    policy_type = models.CharField(max_length=100, choices=POLICY_CHOICES)  
+    DEFAULT_POLICY_TYPE = 'default_policy'
+    policy_type = models.CharField(max_length=100, choices=POLICY_CHOICES,default=DEFAULT_POLICY_TYPE)  
     percentage = models.DecimalField(max_digits=5, decimal_places=2,null=True)  
     duration = models.DurationField(default=timedelta(days=0)) 
     points = models.PositiveIntegerField(default=0) 
