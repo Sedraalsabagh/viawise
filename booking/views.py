@@ -4,6 +4,7 @@ from rest_framework import viewsets
 from rest_framework.views import APIView
 from .models import Booking,Passenger,Payment,AgencyPolicy
 from .serializers import BookingSerializer,PassengerSerializer,PassengerSerializer,AgencyPolicySerializer
+from .serializers import *
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.decorators import api_view ,permission_classes
@@ -440,3 +441,16 @@ def Agency_condition(request, policy_type):
         return Response(serializer.data)
     except AgencyPolicy.DoesNotExist:
         return Response({"message": "Policy not found."}, status=status.HTTP_404_NOT_FOUND)
+    
+    
+    
+
+@api_view(['GET'])
+def get_Tickets(request, booking_id):
+    try:
+        booking = Booking.objects.get(id=booking_id)
+    except Booking.DoesNotExist:
+        return Response({'message': 'Booking not found'}, status=404)
+
+    serializer = BookingSerializerT(booking)
+    return Response(serializer.data)    

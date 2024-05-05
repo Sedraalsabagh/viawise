@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Booking,Passenger,Payment ,AgencyPolicy#,PushNotificationToken
 from flights.models import Flight,Airline#,FlightSeatClass
-
+from flights.models import *
 
 
 class PassengerSerializer(serializers.ModelSerializer):
@@ -97,8 +97,7 @@ class PushNotificationTokenSerializer(serializers.ModelSerializer):
 '''
 
 
-      
-      
+          
 class AgencyPolicySerializer(serializers.ModelSerializer):
     class Meta:
         model = AgencyPolicy
@@ -106,6 +105,30 @@ class AgencyPolicySerializer(serializers.ModelSerializer):
 
 
 
+
+
+
+
+####################### profile Tickets 
+class AirplaneSerializerT(serializers.ModelSerializer):
+    airline_name = serializers.CharField(source='airline.airline_name', read_only=True)
+    
+    class Meta:
+        model = Airplane
+        fields = ['airline_name']
+
+class FlightSerializerT(serializers.ModelSerializer):
+    Airplane = AirplaneSerializerT()
+    class Meta:
+        model = Flight
+        fields = ['departure_date', 'departure_city', 'destination_city', 'airportDeparture', 'airportArrival', 'Airplane']
+
+class BookingSerializerT(serializers.ModelSerializer):
+    outbound_flight = FlightSerializerT()
+    return_flight = FlightSerializerT()
+    class Meta:
+        model = Booking
+        fields = ['id', 'outbound_flight', 'return_flight', 'passenger_class', 'trip_type', 'status', 'total_cost', 'creation_time']
 
 
 
