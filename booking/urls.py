@@ -14,4 +14,4 @@ path('user-booking/', UserBookingsAPIView.as_view(), name='user-bookings'),
 path('load_seed_data/', views.load_seed_data, name='load_seed_data'),
 path('<str:policy_type>/Agency_condition/', views.Agency_condition, name='get_condition'),
 
-]
+             ]
