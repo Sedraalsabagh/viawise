@@ -214,6 +214,27 @@ def cancel_booking(request):
         user.balance += refund_amount
         user.save()
 
+        
+        passenger_class = booking.passenger_class
+        outbound_flight = booking.outbound_flight
+        if passenger_class == 'Economy':
+            outbound_flight.economy_remaining += 1
+        elif passenger_class == 'Business':
+            outbound_flight.business_remaining += 1
+        elif passenger_class == 'First':
+            outbound_flight.first_remaining += 1
+        outbound_flight.save()
+
+        return_flight = booking.return_flight
+        if return_flight:
+            if passenger_class == 'Economy':
+                return_flight.economy_remaining += 1
+            elif passenger_class == 'Business':
+                return_flight.business_remaining += 1
+            elif passenger_class == 'First':
+                return_flight.first_remaining += 1
+            return_flight.save()
+
         return JsonResponse({'success': True, 'message': 'Booking canceled successfully. Refund amount: {}'.format(refund_amount)})
     else:
         return JsonResponse({'success': False, 'message': 'Invalid request method.'})
