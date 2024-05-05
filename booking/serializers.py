@@ -53,6 +53,9 @@ class BookingSerializer2(serializers.ModelSerializer):
     class Meta:
         model = Booking
         fields = ['user', 'Passenger', 'outbound_flight', 'return_flight', 'trip_type', 'passenger_class', 'total_cost', 'booking_date']
+        
+        
+############my Booking         
 class FlightSerializer3(serializers.ModelSerializer):
     airline_name = serializers.CharField(source='airplane.airline.airline_name')
 
