@@ -40,6 +40,7 @@ class AgencyPolicy(models.Model):
     duration = models.DurationField(default=timedelta(days=0)) 
     points = models.PositiveIntegerField(default=0) 
     points_offers= models.PositiveIntegerField(default=0) 
+    conditions = models.TextField(max_length=400,blank=True, null=True)
 
     def __str__(self):
         return f"{self.policy_type} policy"
