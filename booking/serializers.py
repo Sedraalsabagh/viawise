@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Booking,Passenger,Payment#,PushNotificationToken
+from .models import Booking,Passenger,Payment ,AgencyPolicy#,PushNotificationToken
 from flights.models import Flight,Airline#,FlightSeatClass
 
 
@@ -96,16 +96,13 @@ class PushNotificationTokenSerializer(serializers.ModelSerializer):
      return data
 '''
 
-   # def create(self, validated_data):
-    #    passengers_data = validated_data.pop('passengers', [])
-     #   booking = Booking.objects.create(**validated_data)
-    #    for passenger_data in passengers_data:
-     #       Passenger.objects.create(booking=booking, **passenger_data)
-      #s  return booking
+
       
       
-      #git 
-      #sedra #qq
+class AgencyPolicySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AgencyPolicy
+        fields = ['id', 'policy_type', 'percentage', 'duration', 'points', 'points_offers', 'conditions']      
 
 
 

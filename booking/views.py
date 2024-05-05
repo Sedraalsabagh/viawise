@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from .models import Booking,Passenger,Payment,AgencyPolicy
-from .serializers import BookingSerializer,PassengerSerializer,PassengerSerializer
+from .serializers import BookingSerializer,PassengerSerializer,PassengerSerializer,AgencyPolicySerializer
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.decorators import api_view ,permission_classes
@@ -429,3 +429,14 @@ def modify_booking(request):
 
     else:
         return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+
+
+
+@api_view(['GET'])
+def Agency_condition(request, policy_type):
+    try:
+        policy = AgencyPolicy.objects.get(policy_type=policy_type)
+        serializer = AgencyPolicySerializer(policy)
+        return Response(serializer.data)
+    except AgencyPolicy.DoesNotExist:
+        return Response({"message": "Policy not found."}, status=status.HTTP_404_NOT_FOUND)
