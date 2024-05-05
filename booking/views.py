@@ -382,7 +382,7 @@ def modify_booking(request):
         user.balance += refund_amount
         user.save()
 
-        # ارجاع المقعد في الرحلة الذهاب
+        
         outbound_flight = booking.outbound_flight
         passenger_class = booking.passenger_class
         if passenger_class == 'Economy':
@@ -393,7 +393,7 @@ def modify_booking(request):
             outbound_flight.first_remaining += 1
         outbound_flight.save()
 
-        # ارجاع المقعد في الرحلة العودة
+        
         return_flight = booking.return_flight
         if return_flight:
             if passenger_class == 'Economy':
