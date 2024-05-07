@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Flight,Review,SeatType,Offer
+from .models import *
 '''
 class FlightSerializer(serializers.ModelSerializer) :
     
@@ -40,6 +40,11 @@ class OfferSerializer(serializers.ModelSerializer):
         fields = '__all__'        
 
 
+class FlightProfileSerializer(serializers.ModelSerializer):
+    airline_name = serializers.CharField(source='Airplane.airline.airline_name', read_only=True)
 
+    class Meta:
+        model = Flight
+        fields = ['id','notes','ratings','departure_date', 'return_date', 'airportDeparture', 'airportArrival', 'departure_city', 'destination_city', 'departure_country', 'destination_country', 'price_flight', 'airline_name']
 
 

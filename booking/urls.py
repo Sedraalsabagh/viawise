@@ -9,10 +9,8 @@ path('modify_booking/', views.modify_booking, name='modify_booking'),
 path('cancel_booking/', views.cancel_booking, name='cancel_booking'),
 path('user-bookings/', UserBookingsAPIView.as_view(), name='user-bookings'),
 path('make_payment/', views.make_payment, name='make_payment'),
-path('user-booking/', UserBookingsAPIView.as_view(), name='user-bookings'),
+path('My-booking/', UserBookingsAPIView.as_view(), name='user-bookings'),
 #path('send_notification/', views.send_notification, name='send_notification'),
 path('load_seed_data/', views.load_seed_data, name='load_seed_data'),
-path('AllBookings/', AllBookingsAPIView.as_view(), name='AllBookings'),
 
-
-]
+             ]

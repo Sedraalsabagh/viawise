@@ -21,6 +21,7 @@ from rest_framework.response import Response
 from django.utils import timezone
 from datetime import datetime,time
 from django.utils.timezone import make_aware
+from .serializer import FlightProfileSerializer
 
 # Create your views here.
 @api_view(['GET'])
@@ -217,3 +218,17 @@ def flights_offers(request):
     
     
     return Response(serializer.data)
+
+
+
+@api_view(['GET'])
+def flight_details(request, flight_id):
+    try:
+        flight = Flight.objects.get(id=flight_id)
+    except Flight.DoesNotExist:
+        return Response(status=404)
+
+    serializer = FlightProfileSerializer(flight)
+    return Response(serializer.data)
+
+

@@ -3,7 +3,8 @@ from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from .models import Booking,Passenger,Payment,AgencyPolicy
-from .serializers import BookingSerializer,PassengerSerializer,PassengerSerializer
+from .serializers import BookingSerializer,PassengerSerializer,PassengerSerializer,AgencyPolicySerializer
+from .serializers import *
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.decorators import api_view ,permission_classes
@@ -219,6 +220,27 @@ def cancel_booking(request):
         user.balance += refund_amount
         user.save()
 
+        
+        passenger_class = booking.passenger_class
+        outbound_flight = booking.outbound_flight
+        if passenger_class == 'Economy':
+            outbound_flight.economy_remaining += 1
+        elif passenger_class == 'Business':
+            outbound_flight.business_remaining += 1
+        elif passenger_class == 'First':
+            outbound_flight.first_remaining += 1
+        outbound_flight.save()
+
+        return_flight = booking.return_flight
+        if return_flight:
+            if passenger_class == 'Economy':
+                return_flight.economy_remaining += 1
+            elif passenger_class == 'Business':
+                return_flight.business_remaining += 1
+            elif passenger_class == 'First':
+                return_flight.first_remaining += 1
+            return_flight.save()
+
         return JsonResponse({'success': True, 'message': 'Booking canceled successfully. Refund amount: {}'.format(refund_amount)})
     else:
         return JsonResponse({'success': False, 'message': 'Invalid request method.'})
@@ -379,8 +401,6 @@ def modify_booking(request):
         except AgencyPolicy.DoesNotExist:
             return JsonResponse({'success': False, 'message': 'Modification policy not found.'})
 
-
-        
         refund_amount = booking.total_cost * (policy.percentage / 100)
 
         booking.status = 'CNL'
@@ -388,24 +408,30 @@ def modify_booking(request):
 
         user.balance += refund_amount
         user.save()
-        
-        
-        flight = booking.outbound_flight
-        if passenger_class == 'Economy':
-            
-            flight.economy_remaining += 1
-            
-        elif passenger_class == 'Business':
-            
-            flight.business_remaining += 1
-            
-        elif passenger_class == 'First':
-            
-            flight.first_remaining += 1
-            
-        flight.save()
 
-        return JsonResponse({'success': True, 'message': 'Booking modified successfully. Discount amount: {}'.format(discount_amount)})
+        
+        outbound_flight = booking.outbound_flight
+        passenger_class = booking.passenger_class
+        if passenger_class == 'Economy':
+            outbound_flight.economy_remaining += 1
+        elif passenger_class == 'Business':
+            outbound_flight.business_remaining += 1
+        elif passenger_class == 'First':
+            outbound_flight.first_remaining += 1
+        outbound_flight.save()
+
+        
+        return_flight = booking.return_flight
+        if return_flight:
+            if passenger_class == 'Economy':
+                return_flight.economy_remaining += 1
+            elif passenger_class == 'Business':
+                return_flight.business_remaining += 1
+            elif passenger_class == 'First':
+                return_flight.first_remaining += 1
+            return_flight.save()
+
+        return JsonResponse({'success': True, 'message': 'Booking modified successfully. Refund amount: {}'.format(refund_amount)})
 
     else:
         return JsonResponse({'success': False, 'message': 'Invalid request method.'})
@@ -449,3 +475,27 @@ class AllBookingsAPIView(generics.ListAPIView):
 
 
 
+
+
+
+@api_view(['GET'])
+def Agency_condition(request, policy_type):
+    try:
+        policy = AgencyPolicy.objects.get(policy_type=policy_type)
+        serializer = AgencyPolicySerializer(policy)
+        return Response(serializer.data)
+    except AgencyPolicy.DoesNotExist:
+        return Response({"message": "Policy not found."}, status=status.HTTP_404_NOT_FOUND)
+    
+    
+    
+
+@api_view(['GET'])
+def get_Tickets(request, booking_id):
+    try:
+        booking = Booking.objects.get(id=booking_id)
+    except Booking.DoesNotExist:
+        return Response({'message': 'Booking not found'}, status=404)
+
+    serializer = BookingSerializerT(booking)
+    return Response(serializer.data)    
