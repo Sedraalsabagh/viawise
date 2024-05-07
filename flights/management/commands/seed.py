@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from faker import Faker
 from random import randint
-from account.models import User,UserProfile
+from theaccount.models import User,UserProfile
 from django.db import IntegrityError
 from ...models import Airline, Airplane, Airport, Flight, FlightSchedule, Policy, RefundedPayment, Review, SeatType
 import random

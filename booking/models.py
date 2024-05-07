@@ -1,6 +1,5 @@
 from django.db import models
 from operator import mod
-from account.models import User
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.timezone import now

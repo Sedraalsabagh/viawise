@@ -202,3 +202,23 @@ def contact_us(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+
+
+
+
+##########################
+from django.shortcuts import render,redirect
+from django.contrib.auth import logout
+
+
+def home(request):
+    return render(request,"home.html")
+
+def logout_view(request):
+    logout(request)
+    return redirect('/')
+
+
+

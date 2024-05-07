@@ -1,12 +1,13 @@
 from django.contrib import admin
-from . models import User,UserProfile ,PointBalance,Contact
+from . models import User,UserProfile ,Contact #PointBalance
 
 
 
 
 admin.site.register(User)
 admin.site.register(Contact)
-admin.site.register(PointBalance)
+#admin.site.register(UserProfile)
+#admin.site.register(PointBalance)
 
 
 @admin.register(UserProfile)
