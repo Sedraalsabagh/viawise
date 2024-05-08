@@ -86,7 +86,10 @@ class Flight(models.Model):
         ('Cold', 'Cold'),  
         ('Moderate', 'Moderate'),  
     )
-
+    FLIGHT_SCHEDULE_CHOICES = (
+        ('Direct', 'Direct'),
+        ('Transit', 'Transit'),
+    )
     departure_date=models.DateField(default=datetime.now)
    # airline=models.ForeignKey(Airline, on_delete=models.CASCADE,default=1)
     Airplane=models.ForeignKey(Airplane, on_delete=models.CASCADE,default=1)
@@ -109,6 +112,7 @@ class Flight(models.Model):
     destination_activity = models.CharField(max_length=100, choices=DESTINATION_ACTIVITY,blank=True, null=True)
     destination_type=models.CharField(max_length=100,choices=DESTIATION_CHOICES,blank=True, null=True)
     destination_climate = models.CharField(max_length=100,choices=CLIMATE_CHOICES, blank=True, null=True)
+    flight_schedule = models.CharField(max_length=100, choices=FLIGHT_SCHEDULE_CHOICES, blank=True, null=True)
     def __str__(self):
         return str(self.id)
 
