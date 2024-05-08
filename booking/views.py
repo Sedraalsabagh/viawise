@@ -459,22 +459,9 @@ def modify_booking(request):
 class AllBookingsAPIView(generics.ListAPIView):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
+    
+    
 
 
 
@@ -499,3 +486,11 @@ def get_Tickets(request, booking_id):
 
     serializer = BookingSerializerT(booking)
     return Response(serializer.data)    
+
+
+
+@api_view(['GET'])
+def all_booking(request):
+    bookings = Booking.objects.all()
+    serializer = BookingSerializer10(bookings, many=True)
+    return Response(serializer.data)

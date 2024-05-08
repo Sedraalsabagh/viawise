@@ -9,7 +9,12 @@ class PassengerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Passenger
         fields = '__all__'
-
+        
+        
+class BookingSerializer10(serializers.ModelSerializer):  #get all 
+    class Meta:
+        model = Booking
+        fields = '__all__'
 
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:
