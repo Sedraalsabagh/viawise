@@ -11,6 +11,11 @@ from rest_framework.decorators import api_view ,permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
+
+from rest_framework import generics
+from .models import Booking
+from .serializers import BookingSerializer
+
 from django.core.management import call_command
 from account.models import *
 from flights.models import *
@@ -430,6 +435,46 @@ def modify_booking(request):
 
     else:
         return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class AllBookingsAPIView(generics.ListAPIView):
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 from .models import Airplane, SeatType,Policy,Airline,Flight, Airport
 # Create your tests here.
 from django.test import TestCase
-from account.models import User
 from datetime import datetime, timedelta
 from .models import Airplane, SeatType, Policy, Airline, Flight, Airport
 

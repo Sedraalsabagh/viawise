@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import UserBookingsAPIView
+from .views import UserBookingsAPIView,AllBookingsAPIView
 from . import views
 
 urlpatterns = [
@@ -12,7 +12,6 @@ path('make_payment/', views.make_payment, name='make_payment'),
 path('My-booking/', UserBookingsAPIView.as_view(), name='user-bookings'),
 #path('send_notification/', views.send_notification, name='send_notification'),
 path('load_seed_data/', views.load_seed_data, name='load_seed_data'),
-path('<str:policy_type>/Agency_condition/', views.Agency_condition, name='get_condition'),
-path('Tickets/<int:booking_id>/', views.get_Tickets, name='get_Tickets'),
+path('AllBookings/', AllBookingsAPIView.as_view(), name='AllBookings'),
 
              ]

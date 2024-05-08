@@ -13,6 +13,9 @@ from datetime import timedelta
 from pathlib import Path
 import dj_database_url
 import os    
+#from dotenv import load_dotenv
+
+#load_dotenv()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -33,6 +36,9 @@ ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
+
+SITE_ID = 1
+
 INSTALLED_APPS = [#safa
     #sedra
     #'jazzmin',
@@ -45,19 +51,42 @@ INSTALLED_APPS = [#safa
     'django.contrib.staticfiles',
     'rest_framework' ,
     'rest_framework_simplejwt',
+    'django.contrib.sites',
+    
     'flights',
     'booking',
     'django_filters',
     'django_seed',
     'hotel',
-    
-    
+
+    ##Allauth
+    #'allauth',
+    #'allauth.account',
+    #'allauth.socialaccount',
+    #'allauth.socialaccount.providers.google'    
     
     
 ]
+'''
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE' : [
+            'profile',
+            'email'
+        ],
+        'APP': {
+            #'client_id': os.environ['CLIENT_ID'],
+            #'secret': os.environ['CLIENT_SECRET'],
+        },
+        'AUTH_PARAMS': {
+            'access_type':'online',
+        }
+    }
+}
 
+'''
 
-AUTH_USER_MODEL ='account.User' #sedra
+AUTH_USER_MODEL ='account.User' 
 
 
 MIDDLEWARE = [
@@ -68,6 +97,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'Agency.urls'
@@ -94,18 +124,18 @@ WSGI_APPLICATION = 'Agency.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
-#DATABASES = {
-   # 'default': {
-       # 'ENGINE': 'django.db.backends.postgresql',
-      #  'NAME': 'viawise1',
-     #   'USER':'postgres',
-    #    'PASSWORD':'123456',
-   #     'HOST':'localhost', ##هون 
-  #      'POST':'5432'
- #   }
-#} 
-
+'''
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'SEDRA',
+        'USER':'postgres',
+        'PASSWORD':'1234',
+        'HOST':'localhost', ##هون 
+        'POST':'5432'
+    }
+} 
+'''
 
 DATABASES  = {
             'default':dj_database_url.parse('postgres://viawais1_user:MsnUtwnQZhtMgRwDoSIoPFUhVRm2jwpR@dpg-cofphgev3ddc739ngta0-a.oregon-postgres.render.com/viawais1')  
@@ -189,4 +219,13 @@ EMAIL_HOST_USER = '47c6e3ebd68ec1'
 EMAIL_HOST_PASSWORD = '05b97e2ccf3d56'
 EMAIL_PORT = '2525'
 EMAIL_USE_TLS = False
+'''
+##allauth
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend'
+]
+LOGIN_REDIRECT_URL ='/'
+LOGOUT_REDIRECT_URL = '/'
 
+'''

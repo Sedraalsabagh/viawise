@@ -69,16 +69,6 @@ class UserProfile(models.Model):
     def __str__(self):
         return str(self.photo)
     
-    
-class PointBalance(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    points = models.IntegerField(default=0)
-
-    def __str__(self):
-        return f"{self.user.username} - Points: {self.points}"
-
-
-
 
 
 class Contact(models.Model):
