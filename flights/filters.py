@@ -7,9 +7,7 @@ class FlightsFilter(django_filters.FilterSet):
     
     
     def filter_by_passenger_count(self, queryset, name, value):
-        """
-        فلتر لتصفية الرحلات بناءً على عدد الركاب المطلوب
-        """
+        
         return queryset.filter(
             economy_remaining__gte=value if self.data['ticket_class'] == 'Economy' else 0,
             first_remaining__gte=value if self.data['ticket_class'] == 'First' else 0,
