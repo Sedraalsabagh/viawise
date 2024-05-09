@@ -7,6 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 from django.db.models import Avg
 from .serializer import FlightSerializer,SeatSerializer,ReviewSerializer,OfferSerializer
 from .filters import FlightsFilter
+from .filters import *
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import AccessToken
 from .filters import FlightsFilter
@@ -40,12 +41,18 @@ def get_by_id_flights(request,pk) :
     return Response({"flights":serializer.data})   
 
 
-@api_view(['GET'])
+@api_view(['GET'])  
 def get_all(request) :
-   filterset=FlightsFilter(request.GET,queryset=Flight.objects.all().order_by('id')) #غيرتي من Flight to FlightSeatType
+   filterset=FlightsFilter(request.GET,queryset=Flight.objects.all().order_by('id'),many=True) #غيرتي من Flight to FlightSeatType
    serializer=FlightSerializer(filterset.qs ,many=True)
    return Response({"flights":serializer.data})
 
+
+@api_view(['GET'])  
+def get_all2(request) :
+   filterset=FlightsFilter2(request.GET,queryset=Flight.objects.all().order_by('id')) #غيرتي من Flight to FlightSeatType
+   serializer=FlightSerializer(filterset.qs ,many=True)
+   return Response({"flights":serializer.data})
 
 
 
