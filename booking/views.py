@@ -492,5 +492,5 @@ def get_Tickets(request, booking_id):
 @api_view(['GET'])
 def all_booking(request):
     bookings = Booking.objects.all()
-    serializer = BookingSerializer10(bookings, many=True)
+    serializer = BookingSerializer(bookings, many=True)
     return Response(serializer.data)
