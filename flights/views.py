@@ -43,7 +43,7 @@ def get_by_id_flights(request,pk) :
 
 @api_view(['GET'])  
 def get_all(request) :
-   filterset=FlightsFilter(request.GET,queryset=Flight.objects.all().order_by('id'),many=True) #غيرتي من Flight to FlightSeatType
+   filterset=FlightsFilter(request.GET,queryset=Flight.objects.all().order_by('id')) #غيرتي من Flight to FlightSeatType
    serializer=FlightSerializer(filterset.qs ,many=True)
    return Response({"flights":serializer.data})
 
