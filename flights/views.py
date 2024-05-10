@@ -54,6 +54,14 @@ def get_all2(request) :
    serializer=FlightSerializer(filterset.qs ,many=True)
    return Response({"flights":serializer.data})
 
+@api_view(['GET'])
+def get_round_trip_flights(request):
+    filterset = RoundTripFilter(request.GET, queryset=Flight.objects.all().order_by('id'))
+    if filterset.is_valid():
+        serializer = FlightSerializer(filterset.qs, many=True)
+        return Response({"flights": serializer.data})
+    else:
+        return Response({"error": "Invalid parameters"}, status=400)
 
 
 class SeedDatabaseAPIView(APIView):
