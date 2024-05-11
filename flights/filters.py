@@ -1,6 +1,7 @@
 import django_filters
 from .models import Flight,SeatType
 from django_filters import FilterSet, CharFilter, DateTimeFilter, ModelChoiceFilter
+from django.db.models import F
 
 
 class FlightsFilter(django_filters.FilterSet):
@@ -85,11 +86,13 @@ class FlightsFilter2(django_filters.FilterSet):
         else:
             return queryset.none()
         
+import django_filters
+
 class RoundTripFilter(django_filters.FilterSet):
     departure_airport = django_filters.CharFilter(field_name='airportDeparture', lookup_expr='exact')
     arrival_airport = django_filters.CharFilter(field_name='airportArrival', lookup_expr='exact')
-    departure_date = django_filters.DateTimeFilter(field_name='departure_date', lookup_expr='gte')
-    return_date = django_filters.DateTimeFilter(field_name='departure_date', lookup_expr='gte', method='filter_return_date')
+    departure_date = django_filters.DateTimeFilter(field_name='departure_date', lookup_expr='exact')
+    return_date = django_filters.DateTimeFilter(field_name='return_date', lookup_expr='exact', method='filter_return_date')
     round_trip = django_filters.BooleanFilter(method='filter_round_trip')
 
     class Meta:
@@ -97,9 +100,7 @@ class RoundTripFilter(django_filters.FilterSet):
         fields = ['departure_airport', 'arrival_airport', 'departure_date', 'return_date']
 
     def filter_return_date(self, queryset, name, value):
-        # This method is redundant if the `filter_round_trip` is used correctly,
-        # can be omitted or used for a simpler return date filter in non-round-trip contexts.
-        return queryset
+        return queryset.annotate(departure_datetime=F('departure_date')).filter(departure_datetime=value)
 
     def filter_round_trip(self, queryset, name, value):
         if value:
@@ -108,7 +109,6 @@ class RoundTripFilter(django_filters.FilterSet):
             departure_date = self.data.get('departure_date')
             return_date = self.data.get('return_date')
 
-            # This could be optimized based on actual model and field names
             return queryset.filter(
                 Q(airportDeparture=departure_airport, airportArrival=arrival_airport, departure_date=departure_date) |
                 Q(airportDeparture=arrival_airport, airportArrival=departure_airport, departure_date=return_date)
