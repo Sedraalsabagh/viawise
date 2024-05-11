@@ -137,10 +137,10 @@ DATABASES = {
 '''
 
 DATABASES  = {
-            'default':dj_database_url.parse('postgres://viawais1_user:MsnUtwnQZhtMgRwDoSIoPFUhVRm2jwpR@dpg-cofphgev3ddc739ngta0-a.oregon-postgres.render.com/viawais1')  
+            'default':dj_database_url.parse('postgres://viawise_user:zKrBtWRSpsXKzM8KsGwfsdmB8GeXPSBN@dpg-covno47jbltc73dh8jn0-a.oregon-postgres.render.com/viawise')  
               }
 
-
+ 
 '''
 CELERY_BEAT_SCHEDULE = {
     'update-booking-status': {
