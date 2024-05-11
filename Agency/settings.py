@@ -41,8 +41,8 @@ SITE_ID = 1
 
 INSTALLED_APPS = [#safa
     #sedra
-    #'jazzmin',
-    'account.apps.AccountConfig',
+    'jazzmin',
+    'theaccount.apps.AccountConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -59,15 +59,17 @@ INSTALLED_APPS = [#safa
     'django_seed',
     'hotel',
 
-    ##Allauth
-    #'allauth',
-    #'allauth.account',
-    #'allauth.socialaccount',
-    #'allauth.socialaccount.providers.google'    
-    
+     #all auth configurations
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google'
     
 ]
-'''
+
+SITE_ID = 1
+
+
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE' : [
@@ -83,10 +85,7 @@ SOCIALACCOUNT_PROVIDERS = {
         }
     }
 }
-
-'''
-
-AUTH_USER_MODEL ='account.User' 
+AUTH_USER_MODEL ='theaccount.User'
 
 
 MIDDLEWARE = [
@@ -97,7 +96,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #'allauth.account.middleware.AccountMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'Agency.urls'
@@ -140,6 +139,7 @@ DATABASES = {
 DATABASES  = {
             'default':dj_database_url.parse('postgres://viawais1_user:MsnUtwnQZhtMgRwDoSIoPFUhVRm2jwpR@dpg-cofphgev3ddc739ngta0-a.oregon-postgres.render.com/viawais1')  
               }
+
 
 '''
 CELERY_BEAT_SCHEDULE = {
@@ -219,7 +219,8 @@ EMAIL_HOST_USER = '47c6e3ebd68ec1'
 EMAIL_HOST_PASSWORD = '05b97e2ccf3d56'
 EMAIL_PORT = '2525'
 EMAIL_USE_TLS = False
-'''
+
+
 ##allauth
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -228,4 +229,4 @@ AUTHENTICATION_BACKENDS = [
 LOGIN_REDIRECT_URL ='/'
 LOGOUT_REDIRECT_URL = '/'
 
-'''
+

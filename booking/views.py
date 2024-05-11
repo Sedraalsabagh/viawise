@@ -17,7 +17,7 @@ from .models import Booking
 from .serializers import BookingSerializer
 
 from django.core.management import call_command
-from account.models import *
+from theaccount.models import *
 from flights.models import *
 from rest_framework import generics
 from django.http import JsonResponse

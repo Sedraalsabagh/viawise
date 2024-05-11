@@ -1,7 +1,7 @@
 from django.test import TestCase
 from .models import Passenger, Baggage, Booking
 from flights.models import Flight
-from account.models import User  
+from theaccount.models import User  
 from datetime import datetime
 
 class TestPassengerModel(TestCase):

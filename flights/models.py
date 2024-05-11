@@ -1,6 +1,6 @@
 from django.db import models
 from datetime import datetime, timedelta
-from account.models import User
+from theaccount.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -130,6 +130,7 @@ class Airport(models.Model):
     IATA_code = models.CharField(max_length=3)
     contact_info = models.TextField()
     country = models.CharField(max_length=50)
+    comment = models.TextField(max_length=2000, default="", blank=False)
 
     def __str__(self):     
         return self.airport_name
