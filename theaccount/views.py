@@ -218,8 +218,10 @@ def home(request):
     data = {
         "message": "Welcome to ViaWise"
     }
+    return Response(data)
 
 @api_view(['GET'])
 def logout_view(request):
     logout(request)
     return redirect('/')
+ 
