@@ -213,12 +213,13 @@ from django.shortcuts import render,redirect
 from django.contrib.auth import logout
 
 
+@api_view(['GET'])
 def home(request):
-    return render(request,"home.html")
+    data = {
+        "message": "Welcome to ViaWise"
+    }
 
+@api_view(['GET'])
 def logout_view(request):
     logout(request)
     return redirect('/')
-
-
-
