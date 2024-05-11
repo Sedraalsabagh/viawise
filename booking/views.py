@@ -136,7 +136,7 @@ class UserBookingsAPIView(APIView):
 
     def get(self, request):
         user_bookings = Booking.objects.filter(user=request.user)
-        serializer = BookingSerializer(user_bookings, many=True)
+        serializer = BookingSerializer3(user_bookings, many=True)
         return Response(serializer.data)
 
 
@@ -366,77 +366,62 @@ def update_booking_status():
             booking.save()
 '''            
 
-@api_view(['POST'])
+@api_view(['PUT'])
 def modify_booking(request):
-    if request.method == 'POST':
-        data = request.data
-        username = data.get('username')
-        password = data.get('password')
-        booking_id = data.get('booking_id')
+    booking_id = request.data.get('booking_id')
+    new_departure_date = request.data.get('new_departure_date')  
 
-        if not all([username, password, booking_id]):
-            return JsonResponse({'success': False, 'message': 'Missing required fields.'})
+    try:
+        booking = Booking.objects.get(id=booking_id)
+    except Booking.DoesNotExist:
+        return Response({"message": "Booking does not exist."}, status=status.HTTP_404_NOT_FOUND)
 
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            return JsonResponse({'success': False, 'message': 'Invalid username or password.'})
+    
+    try:
+        new_departure_date = datetime.strptime(new_departure_date, '%Y-%m-%d').date()
+    except ValueError:
+        return Response({"message": "Invalid date format."}, status=status.HTTP_400_BAD_REQUEST)
 
-        if not check_password(password, user.password):
-            return JsonResponse({'success': False, 'message': 'Invalid username or password.'})
+    
+    difference_in_cost = 0  
 
-        try:
-            booking = Booking.objects.get(id=booking_id)
-        except Booking.DoesNotExist:
-            return JsonResponse({'success': False, 'message': 'Booking not found.'})
+   
+    if difference_in_cost > 0:
+        
 
-        if booking.user != user:
-            return JsonResponse({'success': False, 'message': 'Unauthorized access to booking modification.'})
-
-        if booking.status != 'CMP':
-            return JsonResponse({'success': False, 'message': 'The booking is not completed.'})
-
-        try:
-            policy = AgencyPolicy.objects.get(policy_type='modify')
-        except AgencyPolicy.DoesNotExist:
-            return JsonResponse({'success': False, 'message': 'Modification policy not found.'})
-
-        refund_amount = booking.total_cost * (policy.percentage / 100)
-
-        booking.status = 'CNL'
+        
+        booking.total_cost += difference_in_cost
         booking.save()
 
-        user.balance += refund_amount
-        user.save()
+   
+    old_outbound_flight = booking.outbound_flight
+    new_outbound_flight = Flight.objects.get(departure_date=new_departure_date)  
 
-        
-        outbound_flight = booking.outbound_flight
-        passenger_class = booking.passenger_class
-        if passenger_class == 'Economy':
-            outbound_flight.economy_remaining += 1
-        elif passenger_class == 'Business':
-            outbound_flight.business_remaining += 1
-        elif passenger_class == 'First':
-            outbound_flight.first_remaining += 1
-        outbound_flight.save()
+    
+    if booking.passenger_class == 'Economy':
+        old_outbound_flight.economy_remaining += 1
+    elif booking.passenger_class == 'First':
+        old_outbound_flight.first_remaining += 1
+    elif booking.passenger_class == 'Business':
+        old_outbound_flight.business_remaining += 1
 
-        
-        return_flight = booking.return_flight
-        if return_flight:
-            if passenger_class == 'Economy':
-                return_flight.economy_remaining += 1
-            elif passenger_class == 'Business':
-                return_flight.business_remaining += 1
-            elif passenger_class == 'First':
-                return_flight.first_remaining += 1
-            return_flight.save()
+    old_outbound_flight.save()
 
-        return JsonResponse({'success': True, 'message': 'Booking modified successfully. Refund amount: {}'.format(refund_amount)})
+    
+    if booking.passenger_class == 'Economy':
+        new_outbound_flight.economy_remaining -= 1
+    elif booking.passenger_class == 'First':
+        new_outbound_flight.first_remaining -= 1
+    elif booking.passenger_class == 'Business':
+        new_outbound_flight.business_remaining -= 1
 
-    else:
-        return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+    new_outbound_flight.save()
 
+    
+    booking.outbound_flight = new_outbound_flight
+    booking.save()
 
+    return Response({"message": "Booking updated successfully."}, status=status.HTTP_200_OK)
 
 
 

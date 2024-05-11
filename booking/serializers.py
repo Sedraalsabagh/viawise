@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Booking,Passenger,Payment ,AgencyPolicy#,PushNotificationToken
+from .models import *
 from flights.models import Flight,Airline#,FlightSeatClass
 from flights.models import *
 
@@ -62,7 +62,7 @@ class BookingSerializer2(serializers.ModelSerializer):
         
 ############my Booking         
 class FlightSerializer3(serializers.ModelSerializer):
-    airline_name = serializers.CharField(source='airplane.airline.airline_name')
+    airline_name = serializers.CharField(source='Airplane.airline.airline_name')
 
     class Meta:
         model = Flight
@@ -139,5 +139,9 @@ class BookingSerializerT(serializers.ModelSerializer):
         fields = ['id', 'outbound_flight', 'return_flight', 'passenger_class', 'trip_type', 'status', 'total_cost', 'creation_time']
 
 
+
+##############
+
+                 
 
 

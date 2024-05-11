@@ -93,7 +93,7 @@ class Flight(models.Model):
     departure_date=models.DateField(default=datetime.now)
    # airline=models.ForeignKey(Airline, on_delete=models.CASCADE,default=1)
     Airplane=models.ForeignKey(Airplane, on_delete=models.CASCADE,default=1)
-    return_date=models.DateField(default=datetime.now)
+    
     duration =models.DurationField(default=timedelta(days=0))
     airportDeparture=models.CharField(max_length=40,blank=False,null=False)
     airportArrival=models.CharField(max_length=40,blank=False,null=False)
