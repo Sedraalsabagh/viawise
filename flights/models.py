@@ -99,7 +99,7 @@ class Flight(models.Model):
     airportArrival=models.CharField(max_length=40,blank=False,null=False)
     notes=models.TextField(max_length=200,blank=True,null=True)
     ratings=models.IntegerField(blank=True, null=True)
-    user=models.ForeignKey(User,null=True,on_delete=models.SET_NULL)
+    
     departure_city = models.CharField(max_length=100,null=True,default='')
     destination_city = models.CharField(max_length=100,blank=False,null=False,default='')
     departure_country = models.CharField(max_length=100,blank=False,null=False,default='')

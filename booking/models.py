@@ -13,15 +13,6 @@ from django.core.exceptions import ValidationError
 
 # Create your models here.
 
-class PolicyAgency(models.Model):
-    
-    modifiable = models.BooleanField()  
-    modify_period = models.DurationField(default=timedelta(days=0))  
-    cancellable = models.BooleanField()  
-    cancel_period = models.DurationField(default=timedelta(days=0))  
-    cancel_without_payment = models.DurationField(default=timedelta(days=0)) 
-    cancellation_discount_amount = models.DecimalField(max_digits=15, decimal_places=5, default=1)
-
 
 class AgencyPolicy(models.Model):
     
