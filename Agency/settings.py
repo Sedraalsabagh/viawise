@@ -67,7 +67,6 @@ INSTALLED_APPS = [#safa
     
 ]
 
-SITE_ID = 1
 
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -76,10 +75,10 @@ SOCIALACCOUNT_PROVIDERS = {
             'profile',
             'email'
         ],
-        'APP': {
+        #'APP': {
             #'client_id': os.environ['CLIENT_ID'],
             #'secret': os.environ['CLIENT_SECRET'],
-        },
+        #},
         'AUTH_PARAMS': {
             'access_type':'online',
         }
@@ -140,7 +139,7 @@ DATABASES  = {
             'default':dj_database_url.parse('postgres://viawise_user:zKrBtWRSpsXKzM8KsGwfsdmB8GeXPSBN@dpg-covno47jbltc73dh8jn0-a.oregon-postgres.render.com/viawise')  
               }
 
-
+ 
 '''
 CELERY_BEAT_SCHEDULE = {
     'update-booking-status': {
