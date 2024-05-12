@@ -42,7 +42,7 @@ class FlightsFilter(django_filters.FilterSet):
             return queryset.none()
         
         
-class FlightsFilter2(django_filters.FilterSet):
+class FlightsFilter3(django_filters.FilterSet):
     def filter_by_passenger_count(self, queryset, name, value):
         return queryset.filter(
             economy_remaining__gte=value if self.data['ticket_class'] == 'Economy' else 0,
@@ -115,3 +115,32 @@ class RoundTripFilter(django_filters.FilterSet):
             )
         else:
             return queryset
+        
+        
+class FlightsFilter2(django_filters.FilterSet):
+    departure_airport = django_filters.CharFilter(field_name='airportDeparture', label='Departure Airport', lookup_expr='exact', required=True)
+    arrival_airport = django_filters.CharFilter(field_name='airportArrival', label='Arrival Airport', lookup_expr='exact', required=True)
+    departure_date = django_filters.DateTimeFilter(field_name='departure_date', label='Departure Time', lookup_expr='exact', required=True)
+
+    class Meta:
+        model = Flight
+        fields = ['airportDeparture', 'airportArrival', 'departure_date']
+
+    def filter_queryset(self, queryset):
+        if self.data.get('airportDeparture') and self.data.get('airportArrival') and self.data.get('departure_date'):
+            departure = self.data['airportDeparture']
+            arrival = self.data['airportArrival']
+            date = self.data['departure_date']
+            
+            # Filter flights departing from departure airport to arrival airport
+            flights_outbound = queryset.filter(airportDeparture=departure, airportArrival=arrival, departure_date=date)
+            
+            # Filter flights departing from arrival airport to departure airport
+            flights_inbound = queryset.filter(airportDeparture=arrival, airportArrival=departure, departure_date=date)
+            
+            # Combine the two querysets
+            combined_flights = flights_outbound | flights_inbound
+            
+            return combined_flights
+        else:
+            return queryset.none()        
