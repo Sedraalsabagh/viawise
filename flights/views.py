@@ -32,6 +32,16 @@ def get_all_flights(request) :
     return Response({"flights":serializer.data}) 
 
 
+###################################
+@api_view(['GET'])
+def get_all_flights(request) :
+    flights=Flight.objects.all()
+    serializer=FlightSerializer(flights,many=True)
+    return Response({"flights":serializer.data}) 
+#####################################################
+
+
+
 @api_view(['POST'])
 def get_by_id_flights(request,pk) :
     flights = get_object_or_404(Flight, id=pk)
