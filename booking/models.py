@@ -111,7 +111,7 @@ class Booking(models.Model):
             multiplier = Decimal('3') if self.passenger_class == 'First' else Decimal('2') if self.passenger_class == 'Business' else Decimal('1')
             self.total_cost = price * multiplier
 
-    def apply_discounts(self):
+    def apply_discounts(self): #
         
         if self.trip_type == 'RT' and self.return_flight:
             self.total_cost = self.calculate_discount(self.outbound_flight, self.total_cost)

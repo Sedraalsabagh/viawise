@@ -45,6 +45,6 @@ class FlightProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Flight
-        fields = ['id','notes','ratings','departure_date', 'return_date', 'airportDeparture', 'airportArrival', 'departure_city', 'destination_city', 'departure_country', 'destination_country', 'price_flight', 'airline_name']
+        fields = ['id','notes','ratings','departure_date', 'airportDeparture', 'airportArrival', 'departure_city', 'destination_city', 'departure_country', 'destination_country', 'price_flight', 'airline_name']
 
 
