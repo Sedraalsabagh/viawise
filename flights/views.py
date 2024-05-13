@@ -30,7 +30,7 @@ def get_all_flights(request) :
     flights=Flight.objects.all()
     serializer=FlightSerializer(flights,many=True)
     print(flights)
-    return Response({"flights":serializer.data}) 
+    return Response({"flights":FlightProfileSerializer.data}) 
 
 
 @api_view(['POST'])
