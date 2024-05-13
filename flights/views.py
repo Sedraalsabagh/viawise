@@ -28,9 +28,8 @@ from .serializer import FlightProfileSerializer
 @api_view(['GET'])
 def get_all_flights(request) :
     flights=Flight.objects.all()
-    serializer=FlightSerializer(flights,many=True)
-    print(flights)
-    return Response({"flights":FlightProfileSerializer.data}) 
+    serializer=FlightProfileSerializer(flights,many=True)
+    return Response({"flights":serializer.data}) 
 
 
 @api_view(['POST'])
