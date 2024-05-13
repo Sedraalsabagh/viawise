@@ -33,68 +33,6 @@ from decimal import Decimal
 
 
 
-
-@api_view(['POST'])
-def create_booking(request): 
-    if request.method == 'POST':
-        booking_data = request.data.get('booking', {})
-        passengers_data = request.data.get('passengers', [])  # Accept list of passengers
-        
-        if not booking_data or not passengers_data:
-            return Response({'message': 'Booking and Passengers data are required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        outbound_flight_id = booking_data.get('outbound_flight')
-        return_flight_id = booking_data.get('return_flight') 
-        
-        if outbound_flight_id == return_flight_id:
-            return Response({'message': 'Outbound and return flights cannot be the same'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            outbound_flight = Flight.objects.get(id=outbound_flight_id)
-            return_flight = Flight.objects.get(id=return_flight_id)
-        except Flight.DoesNotExist:
-            return Response({'message': 'One of the flights does not exist'}, status=status.HTTP_404_NOT_FOUND)
-        
-        booking_serializer = BookingSerializer(data=booking_data)
-        if not booking_serializer.is_valid():
-            return Response(booking_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        bookings = []
-        successful_bookings = []
-        unsuccessful_bookings = []
-        for passenger_data in passengers_data:
-            passport_number = passenger_data.get('passport_number')
-            matching_passengers = Passenger.objects.filter(passport_number=passport_number)
-            
-            if matching_passengers.exists():
-                passenger = matching_passengers.first()
-            else:
-                passenger_serializer = PassengerSerializer(data=passenger_data)
-                if not passenger_serializer.is_valid():
-                    return Response(passenger_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-                
-                passenger = passenger_serializer.save()
-            
-            booking_exists = Booking.objects.filter(Passenger=passenger.id, outbound_flight=outbound_flight, return_flight=return_flight).exists()
-            if booking_exists:
-                unsuccessful_bookings.append(passenger.id)
-            else:
-                booking_data['Passenger'] = passenger.id
-                booking_serializer = BookingSerializer(data=booking_data)
-                if not booking_serializer.is_valid():
-                    return Response(booking_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-                
-                booking = booking_serializer.save()
-                bookings.append(booking.id)
-                successful_bookings.append(passenger.id)
-        
-        response_data = {
-            'message': 'Bookings created successfully',
-            'successful_booking_passengers': successful_bookings,
-            'unsuccessful_booking_passengers': unsuccessful_bookings,
-            'booking_ids': bookings
-        }
-        return Response(response_data, status=status.HTTP_201_CREATED)
     
 
     
