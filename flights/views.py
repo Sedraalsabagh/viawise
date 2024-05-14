@@ -273,6 +273,7 @@ def flight_details(request, flight_id):
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import JsonResponse
+import requests
 
 @api_view(['GET'])
 def get_recommendations_user(request):
