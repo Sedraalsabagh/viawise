@@ -268,7 +268,7 @@ def flight_details(request, flight_id):
 
 
 
-
+'''
 #Recommendation
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -286,7 +286,7 @@ def get_recommendations_user(request):
         
         users_df.rename(columns={'user': 'user_id'}, inplace=True)
         users_df.fillna(users_df.mode().iloc[0], inplace=True)
-        
+         
         gender_mapping = {'male': 0, 'female': 1}
         users_df['gender_encoded'] = users_df['gender'].map(gender_mapping)
         users_df.drop('gender', axis=1, inplace=True)
@@ -335,3 +335,4 @@ def get_recommendations_user(request):
     else:
         return JsonResponse({"error": "Failed to retrieve users data from API."})
 
+'''
