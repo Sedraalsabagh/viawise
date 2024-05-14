@@ -15,9 +15,9 @@ urlpatterns = [
     path('search1/',views.get_all,name='on_way'),
     path('search2/',views.get_all2,name='Rund Trip'),
     path('flights/',views.get_all_flights,name='flight'),
+    path('recommendations1/', views.get_recommendations_user, name='get_recommendations_user'),
 
     
-
     ]
 
 
