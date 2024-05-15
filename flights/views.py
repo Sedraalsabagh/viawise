@@ -282,8 +282,9 @@ import pandas as pd
 
 @api_view(['POST'])
 def get_recommendations_user(request):
-    user_id = request.user.id
-    
+  user_id = request.data.get('user_id', None)
+  if user_id is not None:
+
     users_data = UserProfile.objects.all().values()
     users_df = pd.DataFrame(users_data)
     
@@ -318,14 +319,10 @@ def get_recommendations_user(request):
 
     reviews_data = Review.objects.all().values()
     reviews_df = pd.DataFrame(reviews_data)
-    if user_id is not None:
  
-      similar_users_indices = np.where(users_similarity_df_jaccard[user_id] > 0.999)[0]
+    similar_users_indices = np.where(users_similarity_df_jaccard[user_id] > 0.999)[0]
 
-    else:
-    # Handle the case where user_id is None
-    # For example, return an error message or a default response
-      return JsonResponse({"error": "User ID is missing"})
+
     recommended_flights = []
 
     for similar_user_idx in similar_users_indices:
@@ -336,3 +333,8 @@ def get_recommendations_user(request):
     recommended_flights = list(set(recommended_flights))
     
     return JsonResponse({"recommendations": recommended_flights})
+
+
+  else:
+        # إذا لم يتم تقديم user_id في جسم الطلب
+        return JsonResponse({"error": "User ID is missing"})
