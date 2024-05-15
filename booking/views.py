@@ -469,6 +469,6 @@ def make_booking(request):
         booking_data['Passenger'] = passenger.id
         booking_serializer = BookingSerializer(data=booking_data)
         if booking_serializer.is_valid():
-            booking = booking_serializer.save(user_id=user_id)  # تمرير معرف المستخدم كوسيطة لحفظ الحجز
+            booking = booking_serializer.save(user_id=user_id)  
             return Response({'message': 'Booking created successfully', 'booking_id': booking.id}, status=status.HTTP_201_CREATED)
         return Response(booking_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
