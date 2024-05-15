@@ -9,12 +9,11 @@ from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password 
 from rest_framework import status
 from .serializers import SingUpSerializer,LoginSerializer,UserProfileSerializer,ContactSerializer
-from rest_framework.permissions import IsAuthenticated #لحماية المسارات
+from rest_framework.permissions import IsAuthenticated 
 from .models import User,UserProfile,Contact
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 #from django.contrib.auth.models import User
-from .form import UserEditForm, ProfileEditForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.core.mail import send_mail
