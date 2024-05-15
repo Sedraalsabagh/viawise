@@ -231,7 +231,7 @@ def flights_with_offers(request):
     return Response(flights_data)
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 def flights_offers(request):
     
     flights_with_offers = Flight.objects.filter(offer__isnull=False).distinct().order_by('-offer__discount_percentage')
