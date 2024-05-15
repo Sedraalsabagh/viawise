@@ -318,9 +318,14 @@ def get_recommendations_user(request):
 
     reviews_data = Review.objects.all().values()
     reviews_df = pd.DataFrame(reviews_data)
-    
-    similar_users_indices = np.where(users_similarity_df_jaccard[user_id] > 0.999)[0]
+    if user_id is not None:
+ 
+      similar_users_indices = np.where(users_similarity_df_jaccard[user_id] > 0.999)[0]
 
+    else:
+    # Handle the case where user_id is None
+    # For example, return an error message or a default response
+      return JsonResponse({"error": "User ID is missing"})
     recommended_flights = []
 
     for similar_user_idx in similar_users_indices:
