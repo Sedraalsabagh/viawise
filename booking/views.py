@@ -11,7 +11,7 @@ from rest_framework.decorators import api_view ,permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
-
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
 from .models import Booking
 from .serializers import BookingSerializer
@@ -244,7 +244,7 @@ def make_payment(request):
 
 
 @api_view(['POST'])
-def make_booking(request): #جد هاد الصج  #اكتر من حدا 
+def booking(request): #جد هاد الصج  #اكتر من حدا 
     if request.method == 'POST':
         booking_data = request.data.get('booking', {})
         passenger_data = request.data.get('passenger', {})
@@ -417,3 +417,58 @@ def all_booking(request):
     bookings = Booking.objects.all()
     serializer = BookingSerializer(bookings, many=True)
     return Response(serializer.data)
+
+
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def make_booking(request): 
+    
+    if request.method == 'POST':
+        user_id = request.user.id  # استخراج معرف المستخدم المصادق عليه من request.user
+        
+        booking_data = request.data.get('booking', {})
+        passenger_data = request.data.get('passenger', {})
+        
+        if not booking_data or not passenger_data:
+            return Response({'message': 'Booking and Passenger data are required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        outbound_flight_id = booking_data.get('outbound_flight')
+        return_flight_id = booking_data.get('return_flight') 
+        
+
+        if outbound_flight_id == return_flight_id:
+            return Response({'message': 'Outbound and return flights cannot be the same'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            outbound_flight = Flight.objects.get(id=outbound_flight_id)
+            #return_flight = Flight.objects.get(id=return_flight_id)
+        except Flight.DoesNotExist:
+            return Response({'message': 'One of the flights does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        
+        passport_number = passenger_data.get('passport_number')
+        matching_passengers = Passenger.objects.filter(passport_number=passport_number)
+        
+        if matching_passengers.exists():
+            passenger = matching_passengers.first()
+        else:
+            
+            passenger_serializer = PassengerSerializer(data=passenger_data)
+            if passenger_serializer.is_valid():
+                passenger = passenger_serializer.save()
+            else:
+                return Response(passenger_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        for booking in Booking.objects.filter(Passenger=passenger.id):
+            if booking.outbound_flight_id == outbound_flight_id or (booking.return_flight_id and booking.return_flight_id == return_flight_id):
+               return Response({'message': 'Passenger already booked on one of these flights'}, status=status.HTTP_400_BAD_REQUEST)
+        booking_data['Passenger'] = passenger.id
+        booking_serializer = BookingSerializer(data=booking_data)
+        if booking_serializer.is_valid():
+            booking = booking_serializer.save(user_id=user_id)  # تمرير معرف المستخدم كوسيطة لحفظ الحجز
+            return Response({'message': 'Booking created successfully', 'booking_id': booking.id}, status=status.HTTP_201_CREATED)
+        return Response(booking_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
