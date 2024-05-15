@@ -231,7 +231,7 @@ def flights_with_offers(request):
     return Response(flights_data)
 
 
-@api_view(['POST'])
+@api_view(['GET'])
 def flights_offers(request):
     
     flights_with_offers = Flight.objects.filter(offer__isnull=False).distinct().order_by('-offer__discount_percentage')
@@ -280,7 +280,7 @@ import requests
 import numpy as np
 import pandas as pd
 
-@api_view(['GET'])
+@api_view(['POST'])
 def get_recommendations_user(request):
     user_id = request.user.id
     
