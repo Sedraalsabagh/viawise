@@ -281,6 +281,7 @@ import numpy as np
 import pandas as pd
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def get_recommendations_user(request):
   user_id = request.data.get('user_id', None)
   if user_id is not None:
