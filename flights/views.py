@@ -320,7 +320,7 @@ def get_recommendations_user(request):
 
     reviews_data = Review.objects.all().values()
     reviews_df = pd.DataFrame(reviews_data)
- 
+    
     similar_users_indices = np.where(users_similarity_df_jaccard[user_id] > 0.999)[0]
 
 
@@ -329,7 +329,13 @@ def get_recommendations_user(request):
     for similar_user_idx in similar_users_indices:
         similar_user_profile = users_df.iloc[similar_user_idx]
         similar_user_reviews = reviews_df[reviews_df['user_id'] == similar_user_profile['user_id']]
-        recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 3]['flight'])
+        print("User ID:", similar_user_profile['user_id'])  # Print user_id for debugging
+        print("Flight column values:", similar_user_reviews['flight'])  # Print flight column values for debugging
+        
+        if 'flight' in similar_user_reviews.columns:
+         similar_user_reviews = similar_user_reviews.dropna(subset=['flight']) 
+
+         recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 3]['flight'])
 
     recommended_flights = list(set(recommended_flights))
     
