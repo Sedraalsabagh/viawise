@@ -269,65 +269,70 @@ def flight_details(request, flight_id):
 
 
 
+
 #Recommendation
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import JsonResponse
-from theaccount.models import UserProfile
-from .models import Review
-from sklearn.preprocessing import LabelEncoder
 import requests
-import numpy as np
-import pandas as pd
 
 @api_view(['GET'])
 def get_recommendations_user(request):
     user_id = request.user.id
     
-    users_data = UserProfile.objects.all().values()
-    users_df = pd.DataFrame(users_data)
-    
-    users_df.rename(columns={'user': 'user_id'}, inplace=True)
-    users_df.fillna(users_df.mode().iloc[0], inplace=True)
-    
-    gender_mapping = {'male': 0, 'female': 1}
-    users_df['gender_encoded'] = users_df['gender'].map(gender_mapping)
-    users_df.drop('gender', axis=1, inplace=True)
-    
-    label_encoder = LabelEncoder()
-    users_df['address_encoded'] = label_encoder.fit_transform(users_df['address'])
-    users_df.drop('address', axis=1, inplace=True)
-    users_df['occupation_encoded'] = label_encoder.fit_transform(users_df['occupation'])
-    users_df.drop('occupation', axis=1, inplace=True)
-    users_df['marital_status_encoded'] = label_encoder.fit_transform(users_df['marital_status'])
-    users_df.drop('marital_status', axis=1, inplace=True)
-    
-    weights = [1, 0.1, 2, 1, 3]
-    user_variables = ['age', 'gender_encoded', 'occupation_encoded', 'marital_status_encoded', 'address_encoded']
-    users_similarity_matrix_jaccard = np.zeros((len(users_df), len(users_df)))
+    users_response = requests.get('https://viawise.onrender.com/account/all_users_profile/')
+    if users_response.status_code == 200:
+        users_data = users_response.json()
+        users_df = pd.DataFrame(users_data)
+        
+        users_df.rename(columns={'user': 'user_id'}, inplace=True)
+        users_df.fillna(users_df.mode().iloc[0], inplace=True)
+         
+        gender_mapping = {'male': 0, 'female': 1}
+        users_df['gender_encoded'] = users_df['gender'].map(gender_mapping)
+        users_df.drop('gender', axis=1, inplace=True)
+        
+        label_encoder = LabelEncoder()
+        users_df['address_encoded'] = label_encoder.fit_transform(users_df['address'])
+        users_df.drop('address', axis=1, inplace=True)
+        users_df['occupation_encoded'] = label_encoder.fit_transform(users_df['occupation'])
+        users_df.drop('occupation', axis=1, inplace=True)
+        users_df['marital_status_encoded'] = label_encoder.fit_transform(users_df['marital_status'])
+        users_df.drop('marital_status', axis=1, inplace=True)
+        
+        weights = [1, 0.1, 2, 1, 3]
+        user_variables = ['age', 'gender_encoded', 'occupation_encoded', 'marital_status_encoded', 'address_encoded']
+        users_similarity_matrix_jaccard = np.zeros((len(users_df), len(users_df)))
 
-    for i, user1 in enumerate(users_df[user_variables].values):
-        for j, user2 in enumerate(users_df[user_variables].values):
-            intersection = np.sum(np.minimum(user1, user2) * weights)
-            union = np.sum(np.maximum(user1, user2) * weights)
-            similarity = intersection / union
-            users_similarity_matrix_jaccard[i, j] = similarity
+        for i, user1 in enumerate(users_df[user_variables].values):
+            for j, user2 in enumerate(users_df[user_variables].values):
+                intersection = np.sum(np.minimum(user1, user2) * weights)
+                union = np.sum(np.maximum(user1, user2) * weights)
+                similarity = intersection / union
+                users_similarity_matrix_jaccard[i, j] = similarity
 
-    user_names = users_df.index
-    users_similarity_df_jaccard = pd.DataFrame(users_similarity_matrix_jaccard, index=user_names, columns=user_names)
+        user_names = users_df.index
+        users_similarity_df_jaccard = pd.DataFrame(users_similarity_matrix_jaccard, index=user_names, columns=user_names)
 
-    reviews_data = Review.objects.all().values()
-    reviews_df = pd.DataFrame(reviews_data)
-    
-    similar_users_indices = np.where(users_similarity_df_jaccard[user_id] > 0.999)[0]
+        reviews_response = requests.get('https://viawise.onrender.com/flight/all_users_reviews/')
+        if reviews_response.status_code == 200:
+            reviews_data = reviews_response.json()
+            reviews_df = pd.DataFrame(reviews_data)
+        else:
+            return JsonResponse({"error": "Failed to retrieve reviews data from API."})
+        
+        similar_users_indices = np.where(users_similarity_df_jaccard[user_id] > 0.999)[0]
 
-    recommended_flights = []
+        recommended_flights = []
 
-    for similar_user_idx in similar_users_indices:
-        similar_user_profile = users_df.iloc[similar_user_idx]
-        similar_user_reviews = reviews_df[reviews_df['user'] == similar_user_profile['user_id']]
-        recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 3]['flight'])
+        for similar_user_idx in similar_users_indices:
+            similar_user_profile = users_df.iloc[similar_user_idx]
+            similar_user_reviews = reviews_df[reviews_df['user'] == similar_user_profile['user_id']]
+            recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 3]['flight'])
 
-    recommended_flights = list(set(recommended_flights))
-    
-    return JsonResponse({"recommendations": recommended_flights})
+        recommended_flights = list(set(recommended_flights))
+        
+        return JsonResponse({"recommendations": recommended_flights})
+    else:
+        return JsonResponse({"error": "Failed to retrieve users data from API."})
+
