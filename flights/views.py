@@ -540,7 +540,9 @@ class RecommendFlightsAPIView(APIView):
             current_time = datetime.now()
 
             for i in range(len(flights_df)):
-                flight_departure_date = datetime.strptime(flights_df.iloc[i]['departure_date'], "%Y-%m-%d")
+                flight_departure_date = flights_df.iloc[i]['departure_date'].strftime("%Y-%m-%d")
+
+                
                 if flight_departure_date < current_time:
                     similarity_matrix[i, :] = 0
                     similarity_matrix[:, i] = 0
