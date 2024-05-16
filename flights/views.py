@@ -470,9 +470,6 @@ def recommend_flights(request):
 '''
 
 
-
-
-import requests
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -480,6 +477,9 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from datetime import datetime
+from .models import Flight 
+from booking.models import Booking  
+from .serializer import FlightSerializerrs
 
 def jaccard_distance_weighted(u, v, weights=None):
     if weights is None:
@@ -491,16 +491,14 @@ def jaccard_distance_weighted(u, v, weights=None):
 class RecommendFlightsAPIView(APIView):
     def get(self, request, format=None):
         try:
-            # Get bookings data
-            bookings_response = requests.get('https://viawise.onrender.com/booking/AllBookings/')
-            bookings_data = bookings_response.json()
+            # Get bookings data from the database
+            bookings_data = Booking.objects.all().values('outbound_flight')
 
             # Extract outbound flights from bookings
             outbound_flights = [booking['outbound_flight'] for booking in bookings_data if booking['outbound_flight']]
 
-            # Get flights data
-            flights_response = requests.get('https://viawise.onrender.com/flight/flights/')
-            flights_data = flights_response.json()['flights']
+            # Get flights data from the database
+            flights_data = Flight.objects.all().values()
             flights_df = pd.DataFrame(flights_data)
             flights_df['price_flight'] = flights_df['price_flight'].astype(float)
 
@@ -537,7 +535,7 @@ class RecommendFlightsAPIView(APIView):
             # Add filter on departure time
             current_time = datetime.now()
             for i in range(len(flights_df)):
-                flight_departure_date = datetime.strptime(flights_df.iloc[i]['departure_date'], "%Y-%m-%d %H:%M:%S")
+                flight_departure_date = datetime.combine(flights_df.iloc[i]['departure_date'], datetime.min.time())
                 if flight_departure_date < current_time:
                     similarity_matrix[i, :] = 0
                     similarity_matrix[:, i] = 0
