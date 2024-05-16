@@ -472,17 +472,14 @@ def recommend_flights(request):
 
 
 
-
+import requests
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Flight
-from booking.models import Booking
 import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from datetime import datetime
-
 
 def jaccard_distance_weighted(u, v, weights=None):
     if weights is None:
@@ -491,18 +488,19 @@ def jaccard_distance_weighted(u, v, weights=None):
     union = np.maximum(u, v)
     return 1.0 - (np.dot(weights, intersection) / np.dot(weights, union))
 
-
 class RecommendFlightsAPIView(APIView):
     def get(self, request, format=None):
         try:
-            # Get all bookings
-            bookings_data = Booking.objects.all().values('outbound_flight')
+            # Get bookings data
+            bookings_response = requests.get('https://viawise.onrender.com/booking/AllBookings/')
+            bookings_data = bookings_response.json()
 
             # Extract outbound flights from bookings
             outbound_flights = [booking['outbound_flight'] for booking in bookings_data if booking['outbound_flight']]
 
-            # Get all flights
-            flights_data = Flight.objects.all().values()
+            # Get flights data
+            flights_response = requests.get('https://viawise.onrender.com/flight/flights/')
+            flights_data = flights_response.json()['flights']
             flights_df = pd.DataFrame(flights_data)
             flights_df['price_flight'] = flights_df['price_flight'].astype(float)
 
@@ -538,12 +536,8 @@ class RecommendFlightsAPIView(APIView):
 
             # Add filter on departure time
             current_time = datetime.now()
-
             for i in range(len(flights_df)):
-                flight_departure_date = datetime.combine(flights_df.iloc[i]['departure_date'], datetime.min.time())
-
-
-                
+                flight_departure_date = datetime.strptime(flights_df.iloc[i]['departure_date'], "%Y-%m-%d %H:%M:%S")
                 if flight_departure_date < current_time:
                     similarity_matrix[i, :] = 0
                     similarity_matrix[:, i] = 0
@@ -551,20 +545,9 @@ class RecommendFlightsAPIView(APIView):
             # Calculate user similarity based on previous bookings
             user_similarity = np.zeros(len(flights_features_array))
             for flight_id in outbound_flights:
-                user_preferences = Flight.objects.filter(id=flight_id).values().first()
-                # Create temporary DataFrame with all features and fill default values
-                user_preferences_df = pd.DataFrame(columns=flights_features_encoded.columns, index=[0])
-                user_preferences_df = user_preferences_df.fillna(0)
-
-                # Update preferences with actual values
-                for feature in features:
-                    if feature in user_preferences:
-                        user_preferences_df[feature] = user_preferences[feature]
-
-                # Encode user preferences and convert to array
-                user_preferences_encoded = pd.get_dummies(user_preferences_df).values
-
-                # Calculate similarity between user preferences and all flights
+                # You might need to adjust this part based on the structure of your data
+                user_preferences = flights_df[flights_df['id'] == flight_id]
+                user_preferences_encoded = pd.get_dummies(user_preferences[features]).values
                 user_similarity += cosine_similarity(user_preferences_encoded, flights_features_array).flatten()
 
             # Get top similar flights
@@ -580,5 +563,3 @@ class RecommendFlightsAPIView(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
