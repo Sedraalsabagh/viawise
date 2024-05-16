@@ -438,7 +438,7 @@ def recommend_flights(request):
             user_preferences = Flight.objects.filter(id=flight_id).values().first()
             # Create temporary DataFrame with all features and fill default values
             user_preferences_df = pd.DataFrame(columns=flights_features_encoded.columns, index=[0])
-            user_preferences_df = user_preferences_df.fillna(0)
+            user_preferences_df = user_preferences_df.fillna(flights_features_encoded.mode().iloc[0])
 
             # Update preferences with actual values
             for feature in features:
