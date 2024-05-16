@@ -468,8 +468,6 @@ def recommend_flights(request):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 '''
-
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -477,9 +475,9 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from datetime import datetime
-from .models import Flight 
-from booking.models import Booking  
-from .serializer import FlightSerializerrs
+from .models import Flight
+from booking.models import Booking
+from .serializer import FlightSerializer
 
 def jaccard_distance_weighted(u, v, weights=None):
     if weights is None:
@@ -502,24 +500,17 @@ class RecommendFlightsAPIView(APIView):
             flights_df = pd.DataFrame(flights_data)
             flights_df['price_flight'] = flights_df['price_flight'].astype(float)
 
+            # Define user preferences features
+            user_preferences_features = ['price_flight', 'destination_activity', 'destination_climate', 'destination_type', 'departure_city']
+
             # Preprocess data
             flights_df['departure_city'] = flights_df['departure_city'].str.capitalize()
             flights_df['destination_activity'] = flights_df['destination_activity'].str.capitalize()
             flights_df['destination_climate'] = flights_df['destination_climate'].str.capitalize()
             flights_df['destination_type'] = flights_df['destination_type'].str.capitalize()
 
-            # Define feature weights
-            features = ['price_flight', 'destination_activity', 'destination_climate', 'destination_type', 'departure_city']
-            weights = {
-                'price_flight': 1,
-                'destination_activity': 1.5,
-                'destination_climate': 3,
-                'destination_type': 1,
-                'departure_city': 2
-            }
-
             # Calculate weighted similarity matrix
-            flights_features_encoded = pd.get_dummies(flights_df[features])
+            flights_features_encoded = pd.get_dummies(flights_df[user_preferences_features])
             flights_features_array = flights_features_encoded.values
 
             # Adjust weights to match the number of features
@@ -545,7 +536,7 @@ class RecommendFlightsAPIView(APIView):
             for flight_id in outbound_flights:
                 # You might need to adjust this part based on the structure of your data
                 user_preferences = flights_df[flights_df['id'] == flight_id]
-                user_preferences_encoded = pd.get_dummies(user_preferences[features]).values
+                user_preferences_encoded = pd.get_dummies(user_preferences[user_preferences_features]).values
                 user_similarity += cosine_similarity(user_preferences_encoded, flights_features_array).flatten()
 
             # Get top similar flights
