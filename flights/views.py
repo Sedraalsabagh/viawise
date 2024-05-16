@@ -368,7 +368,7 @@ from .models import Flight
 from booking.models import Booking
 from .serializer import FlightSerializerrs
 from booking.serializers import BookingSerializer10
-
+'''
 @api_view(['GET'])
 def recommend_flights(request):
     def jaccard_distance_weighted(u, v, weights=None):
@@ -467,3 +467,115 @@ def recommend_flights(request):
 
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+'''
+
+
+
+
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Flight
+from booking.models import Booking
+import pandas as pd
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+from datetime import datetime
+
+
+def jaccard_distance_weighted(u, v, weights=None):
+    if weights is None:
+        weights = np.ones(len(u))
+    intersection = np.minimum(u, v)
+    union = np.maximum(u, v)
+    return 1.0 - (np.dot(weights, intersection) / np.dot(weights, union))
+
+
+class RecommendFlightsAPIView(APIView):
+    def get(self, request, format=None):
+        try:
+            # Get all bookings
+            bookings_data = Booking.objects.all().values('outbound_flight')
+
+            # Extract outbound flights from bookings
+            outbound_flights = [booking['outbound_flight'] for booking in bookings_data if booking['outbound_flight']]
+
+            # Get all flights
+            flights_data = Flight.objects.all().values()
+            flights_df = pd.DataFrame(flights_data)
+            flights_df['price_flight'] = flights_df['price_flight'].astype(float)
+
+            # Preprocess data
+            flights_df['departure_city'] = flights_df['departure_city'].str.capitalize()
+            flights_df['destination_activity'] = flights_df['destination_activity'].str.capitalize()
+            flights_df['destination_climate'] = flights_df['destination_climate'].str.capitalize()
+            flights_df['destination_type'] = flights_df['destination_type'].str.capitalize()
+
+            # Define feature weights
+            features = ['price_flight', 'destination_activity', 'destination_climate', 'destination_type', 'departure_city']
+            weights = {
+                'price_flight': 1,
+                'destination_activity': 1.5,
+                'destination_climate': 3,
+                'destination_type': 1,
+                'departure_city': 2
+            }
+
+            # Calculate weighted similarity matrix
+            flights_features_encoded = pd.get_dummies(flights_df[features])
+            flights_features_array = flights_features_encoded.values
+
+            # Adjust weights to match the number of features
+            weights = np.ones(flights_features_array.shape[1])
+
+            # Calculate similarity matrix
+            similarity_matrix = np.zeros((len(flights_features_array), len(flights_features_array)))
+            for i in range(len(flights_features_array)):
+                for j in range(i, len(flights_features_array)):
+                    similarity_matrix[i, j] = jaccard_distance_weighted(flights_features_array[i], flights_features_array[j], weights)
+                    similarity_matrix[j, i] = similarity_matrix[i, j]
+
+            # Add filter on departure time
+            current_time = datetime.now()
+
+            for i in range(len(flights_df)):
+                flight_departure_date = datetime.strptime(flights_df.iloc[i]['departure_date'], "%Y-%m-%d")
+                if flight_departure_date < current_time:
+                    similarity_matrix[i, :] = 0
+                    similarity_matrix[:, i] = 0
+
+            # Calculate user similarity based on previous bookings
+            user_similarity = np.zeros(len(flights_features_array))
+            for flight_id in outbound_flights:
+                user_preferences = Flight.objects.filter(id=flight_id).values().first()
+                # Create temporary DataFrame with all features and fill default values
+                user_preferences_df = pd.DataFrame(columns=flights_features_encoded.columns, index=[0])
+                user_preferences_df = user_preferences_df.fillna(0)
+
+                # Update preferences with actual values
+                for feature in features:
+                    if feature in user_preferences:
+                        user_preferences_df[feature] = user_preferences[feature]
+
+                # Encode user preferences and convert to array
+                user_preferences_encoded = pd.get_dummies(user_preferences_df).values
+
+                # Calculate similarity between user preferences and all flights
+                user_similarity += cosine_similarity(user_preferences_encoded, flights_features_array).flatten()
+
+            # Get top similar flights
+            top_similar_flights_indices = user_similarity.argsort()[::-1][:5]
+
+            # Prepare response data
+            recommended_flights = []
+            for idx in top_similar_flights_indices:
+                recommended_flight = flights_df.iloc[idx].to_dict()
+                recommended_flights.append(recommended_flight)
+
+            return Response({"recommended_flights": recommended_flights}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
