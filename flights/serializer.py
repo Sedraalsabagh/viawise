@@ -31,7 +31,7 @@ class FlightSerializerrs(serializers.ModelSerializer) :
     
     class Meta:
         model=Flight
-        fields=['price_flight', 'destination_activity', 'destination_climate','destination_type','departure_city']       
+        fields=['departure_date','price_flight', 'destination_activity', 'destination_climate','destination_type','departure_city']       
 
 
 
