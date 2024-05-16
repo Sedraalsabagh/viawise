@@ -540,7 +540,8 @@ class RecommendFlightsAPIView(APIView):
             current_time = datetime.now()
 
             for i in range(len(flights_df)):
-                flight_departure_date = flights_df.iloc[i]['departure_date'].strftime("%Y-%m-%d")
+                flight_departure_date = datetime.combine(flights_df.iloc[i]['departure_date'], datetime.min.time())
+
 
                 
                 if flight_departure_date < current_time:
