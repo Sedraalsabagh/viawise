@@ -26,6 +26,14 @@ class FlightSerializer(serializers.ModelSerializer) :
         fields='__all__'       
 
 
+#RS
+class FlightSerializerrs(serializers.ModelSerializer) :
+    
+    class Meta:
+        model=Flight
+        fields=['price_flight', 'destination_activity', 'destination_climate','destination_type','departure_city']       
+
+
 
 class SeatSerializer(serializers.ModelSerializer):
     class Meta:

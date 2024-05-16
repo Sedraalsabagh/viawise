@@ -366,7 +366,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from datetime import datetime
 from .models import Flight
 from booking.models import Booking
-from .serializer import FlightSerializer
+from .serializer import FlightSerializerrs
 from booking.serializers import BookingSerializer10
 
 @api_view(['GET'])
@@ -387,7 +387,7 @@ def recommend_flights(request):
         outbound_flights = [booking['outbound_flight'] for booking in bookings_data if booking['outbound_flight']]
 
         # Get all flights using the serializer
-        flights_serializer = FlightSerializer(Flight.objects.all(), many=True)
+        flights_serializer = FlightSerializerrs(Flight.objects.all(), many=True)
         flights_data = flights_serializer.data
 
         # Convert flights data to DataFrame
