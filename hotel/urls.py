@@ -5,5 +5,6 @@ from rest_framework.routers import DefaultRouter
 
 urlpatterns = [  
      path('hotel/<int:star_rating>/',views.hotel, name='hotel_by_rating'),
-     path('hotel/',views.hotel_list,name='hotel_list')
+     path('hotel/',views.hotel_list,name='hotel_list') ,
+     path('hotelfilter/',views.hotels_filter,name='hotels_filter')
          ]
