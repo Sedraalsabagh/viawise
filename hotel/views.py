@@ -23,11 +23,14 @@ def hotels_filter(request):
     filterset = HotelFilter(request.GET, queryset=Hotel.objects.all().order_by('-star_rating'))
     serializer = HotelSerializer(filterset.qs, many=True)
     return Response(serializer.data)
+
+@api_view(['GET'])
+def hotel_details(request, id):
+    try:
+        hotel = Hotel.objects.get(pk=id)
+    except Hotel.DoesNotExist:
+        return Response({"error": "Hotel not found"}, status=status.HTTP_404_NOT_FOUND)
     
-    '''
+    serializer = HotelSerializer(hotel)
+    return Response(serializer.data)
     
-    @api_view(['GET'])  
-def get_all(request) :
-   filterset=FlightsFilter(request.GET,queryset=Flight.objects.all().order_by('id')) #غيرتي من Flight to FlightSeatType
-   serializer=FlightSerializer(filterset.qs ,many=True)
-   return Response({"flights":serializer.data}) '''

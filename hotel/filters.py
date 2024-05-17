@@ -4,7 +4,7 @@ from .models import Hotel
 
 class HotelFilter(django_filters.FilterSet):
     
-    city=django_filters.CharFilter(field_name='city', label='city', lookup_expr='icontains', required=True)
+    city=django_filters.CharFilter(field_name='city', label='city', lookup_expr='exact', required=True)
     
     class Meta:
        model =Hotel 
