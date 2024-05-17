@@ -20,7 +20,7 @@ def hotel_list(request):
 
 @api_view(['GET'])
 def hotels_filter(request):
-    filterset = HotelFilter(request.GET, queryset=Hotel.objects.all().order_by('id'))
+    filterset = HotelFilter(request.GET, queryset=Hotel.objects.all().order_by('-star_rating'))
     serializer = HotelSerializer(filterset.qs, many=True)
     return Response(serializer.data)
     
