@@ -111,7 +111,7 @@ def create_review(request,pk):
     user=request.user
     flight=get_object_or_404(Flight,id=pk)
     data=request.data
-    review=flight.filter(user=user)
+    review=flight.reviews.filter(user=user)
     
     if data['rating']<=0 or data['rating']>5:
         flight=Flight.object.create(**data,user=request.user)
@@ -133,7 +133,7 @@ def create_review(request,pk):
                 rating=data['rating'],
                 comment=data['comment']
             )
-            rating=flight.aggregate(avg_ratings=Avg('rating'))
+            rating=flight.reviews.aggregate(avg_ratings=Avg('rating'))
             flight.ratings=rating['avg_ratings']
             flight.save()
             return Response({'details':'flight review created'})
@@ -335,9 +335,9 @@ def get_recommendations_user(request):
         #print("Flight column values:", similar_user_reviews['flight'])  # Print flight column values for debugging
         
         if 'flight' in similar_user_reviews.columns:
-         similar_user_reviews = similar_user_reviews.dropna(subset=['flight']) 
+         similar_user_reviews = similar_user_reviews.dropna(subset=['reviews']) 
 
-         recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 3]['flight'])
+         recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 3]['reviews'])
 
     recommended_flights = list(set(recommended_flights))
     
