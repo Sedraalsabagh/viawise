@@ -26,7 +26,7 @@ class LoginSerializer(serializers.ModelSerializer):
              'password':{'required':True,'allow_blank':False,'min_length':8}
            
              }
-class UserProfileSerializer(serializers.ModelSerializer):
+class UserProfileSerializer1(serializers.ModelSerializer):
     
     
     class Meta:
