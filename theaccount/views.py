@@ -178,7 +178,7 @@ def user_profile1(request): #غلط
 def all_users_profile(request):
     if request.method == 'GET':
         user_profiles = UserProfile.objects.all()
-        serializer = UserProfileSerializer(user_profiles, many=True)
+        serializer = UserProfileSerializer1(user_profiles, many=True)
         return Response(serializer.data)
 
 
