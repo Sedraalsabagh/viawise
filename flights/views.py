@@ -285,7 +285,7 @@ import pandas as pd
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def get_recommendations_user(request):
-  user_id = request.data.get('user_id', None)
+  user_id = request.user.id
   if user_id is not None:
 
     users_data = UserProfile.objects.all().values()
