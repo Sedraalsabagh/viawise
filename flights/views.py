@@ -306,7 +306,7 @@ def get_recommendations_user(request):
     users_df['marital_status_encoded'] = label_encoder.fit_transform(users_df['marital_status'])
     users_df.drop('marital_status', axis=1, inplace=True)
     
-    weights = [1, 0.1, 2, 1, 3]
+    weights = [1, 0.1, 1, 1, 1]
     user_variables = ['age', 'gender_encoded', 'occupation_encoded', 'marital_status_encoded', 'address_encoded']
     users_similarity_matrix_jaccard = np.zeros((len(users_df), len(users_df)))
 
