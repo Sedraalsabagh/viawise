@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password 
 from rest_framework import status
 from .serializers import SingUpSerializer,LoginSerializer,UserProfileSerializer,ContactSerializer
+from .serializers import *
 from rest_framework.permissions import IsAuthenticated 
 from .models import User,UserProfile,Contact
 from django.contrib.auth import authenticate
@@ -240,7 +241,7 @@ def user_profile(request):
         return Response(serializer.data)
         
     elif request.method == 'PUT':
-        # Remove 'user' field from request data
+        
         request_data = request.data.copy()
         request_data.pop('user', None)
         
