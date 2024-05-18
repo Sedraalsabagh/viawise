@@ -104,41 +104,39 @@ def new_flight(request) :
 '''
 
 
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def create_review(request,pk):
-    user=request.user
-    flight=get_object_or_404(Flight,id=pk)
-    data=request.data
-    review=flight.reviews.filter(user=user)
+def create_review(request, pk):
+    user = request.user
+    flight = get_object_or_404(Flight, id=pk)
+    data = request.data
+    review = flight.reviews.filter(user=user)
     
-    if data['rating']<=0 or data['rating']>5:
-        flight=Flight.object.create(**data,user=request.user)
-        res=FlightSerializer(flight,many=False)
+    if data['ratings'] <= 0 or data['ratings'] > 5:
+        flight = Flight.objects.create(**data, user=request.user)
+        res = FlightSerializer(flight, many=False)
         
-        return Response({"error":'please select between 1 to 5 only'},status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": 'please select between 1 to 5 only'}, status=status.HTTP_400_BAD_REQUEST)
     elif review.exists():
-        new_review={'rating':data['rating'],'comment':data['comment']}
+        new_review = {'ratings': data['ratings'], 'comment': data['comment']}
         review.update(**new_review)
         
-        rating=flights.reviws.aggregate(avg_ratings=Avg('rating'))
-        flight.ratings=rating['avg_ratings']
+        rating = flight.reviews.aggregate(avg_ratings=Avg('ratings'))
+        flight.ratings = rating['avg_ratings']
         flight.save()
-        return Response({'details':'Flight review updated'})
+        return Response({'details': 'Flight review updated'})
     else:
-            Review.objects.create(
-                user=user,
-                flight=flight,
-                rating=data['rating'],
-                comment=data['comment']
-            )
-            rating=flight.reviews.aggregate(avg_ratings=Avg('rating'))
-            flight.ratings=rating['avg_ratings']
-            flight.save()
-            return Response({'details':'flight review created'})
-        
-        
+        Review.objects.create(
+            user=user,
+            flight=flight,
+            ratings=data['ratings'],
+            comment=data['comment']
+        )
+        rating = flight.reviews.aggregate(avg_ratings=Avg('ratings'))
+        flight.ratings = rating['avg_ratings']
+        flight.save()
+        return Response({'details': 'flight review created'})
+
 
 
 @api_view
