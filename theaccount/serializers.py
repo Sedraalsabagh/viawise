@@ -31,7 +31,7 @@ class UserProfileSerializer1(serializers.ModelSerializer):
     
     class Meta:
         model =UserProfile
-        fields=('age','gender','address','marital_status','occupation')
+        fields=('user','age','gender','address','marital_status','occupation')
 
         extra_kword={ 
              
