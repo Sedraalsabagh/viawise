@@ -122,7 +122,7 @@ def create_review(request,pk):
         new_review={'rating':data['rating'],'comment':data['comment']}
         review.update(**new_review)
         
-        rating=flight.reviws.aggregate(avg_ratings=Avg('rating'))
+        rating=flights.reviws.aggregate(avg_ratings=Avg('rating'))
         flight.ratings=rating['avg_ratings']
         flight.save()
         return Response({'details':'Flight review updated'})
@@ -137,6 +137,8 @@ def create_review(request,pk):
             flight.ratings=rating['avg_ratings']
             flight.save()
             return Response({'details':'flight review created'})
+        
+        
 
 
 @api_view

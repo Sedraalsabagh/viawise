@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import *
+from theaccount.models import User
 '''
 class FlightSerializer(serializers.ModelSerializer) :
     
@@ -67,3 +68,5 @@ class FlightProfileSerializer(serializers.ModelSerializer):
         fields = ['id','notes','ratings','departure_date', 'airportDeparture', 'airportArrival', 'departure_city', 'destination_city', 'departure_country', 'destination_country', 'price_flight', 'airline_name']
 
 
+
+    

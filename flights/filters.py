@@ -20,7 +20,7 @@ class FlightsFilter(django_filters.FilterSet):
     passenger_count = django_filters.NumberFilter(method='filter_by_passenger_count', label='Passenger Count', required=True)
     ticket_class = django_filters.ChoiceFilter(choices=Flight.FLIGHT_SCHEDULE_CHOICES, label='Ticket Class', required=True)
     class Meta:
-       model =Flight
+       model =Flight 
        fields = ['airportDeparture', 'airportArrival','departure_date']
 
     def filter_queryset(self, queryset):

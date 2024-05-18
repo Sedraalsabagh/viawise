@@ -113,7 +113,7 @@ class Flight(models.Model):
     destination_type=models.CharField(max_length=100,choices=DESTIATION_CHOICES,blank=True, null=True)
     destination_climate = models.CharField(max_length=100,choices=CLIMATE_CHOICES, blank=True, null=True)
     flight_schedule = models.CharField(max_length=100, choices=FLIGHT_SCHEDULE_CHOICES, blank=True, null=True)
-    def __str__(self):
+    def __str__(self): 
         return str(self.id)
 
 '''

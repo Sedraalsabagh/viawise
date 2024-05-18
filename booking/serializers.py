@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import *
 from flights.models import Flight,Airline#,FlightSeatClass
 from flights.models import *
+from theaccount.models import User
 
 
 class PassengerSerializer(serializers.ModelSerializer):
@@ -140,8 +141,36 @@ class BookingSerializerT(serializers.ModelSerializer):
 
 
 
-##############
+############## pravetoffers 
+class PriavateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AgencyPolicy
+        fields = ['conditions']
 
-                 
+class PriavateSerializer1(serializers.ModelSerializer):
+   # agency_policy = PriavateSerializer()
+
+    class Meta:
+        model = User
+        fields = ['pointBalance']
+
+ ########
+class PriavateSerializer2(serializers.ModelSerializer):
+    class Meta:
+        model = AgencyPolicy
+        fields = ['conditions']
+        
+class PrivateSerializer2(serializers.ModelSerializer):
+    agency_policy = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['pointBalance', 'agency_policy']
+
+    def get_agency_policy(self, obj):
+        try:
+            return PriavateSerializer2(obj.agencypolicy).data
+        except AgencyPolicy.DoesNotExist:
+            return None                
 
 

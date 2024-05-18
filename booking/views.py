@@ -14,7 +14,7 @@ from django.http import JsonResponse
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
 from .models import Booking
-from .serializers import BookingSerializer
+from .serializers import BookingSerializer,PriavateSerializer1
 from django.core.management import call_command
 from theaccount.models import *
 from flights.models import *
@@ -581,3 +581,13 @@ def make_booking(request):
 
         return Response({'message': f'{len(bookings)} bookings were successfully created'}, status=status.HTTP_201_CREATED)
     
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_point_balance(request):
+    user = request.user 
+    if not user.is_anonymous:  
+        serializer = PriavateSerializer1(user)  
+        return Response(serializer.data)  
+    else:
+        return Response({'error': 'User is not authenticated'}, status=401)    
