@@ -111,7 +111,7 @@ def create_review(request,pk):
     user=request.user
     flight=get_object_or_404(Flight,id=pk)
     data=request.data
-    review=flight.reviews.filter(user=user)
+    review=flight.filter(user=user)
     
     if data['rating']<=0 or data['rating']>5:
         flight=Flight.object.create(**data,user=request.user)
@@ -133,7 +133,7 @@ def create_review(request,pk):
                 rating=data['rating'],
                 comment=data['comment']
             )
-            rating=flight.reviews.aggregate(avg_ratings=Avg('rating'))
+            rating=flight.aggregate(avg_ratings=Avg('rating'))
             flight.ratings=rating['avg_ratings']
             flight.save()
             return Response({'details':'flight review created'})
