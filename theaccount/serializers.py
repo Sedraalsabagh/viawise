@@ -57,7 +57,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'occupation': {'required': False},
         }
     def update(self, instance, validated_data):
-        # تحديث حقول المشتقة من المستخدم بيانات المستخدم المحدثة
+        
         user_data = validated_data.pop('user', {})
         user_instance = instance.user
         user_instance.username = user_data.get('username', user_instance.username)
@@ -65,7 +65,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         user_instance.last_name = user_data.get('last_name', user_instance.last_name)
         user_instance.save()
 
-        # استمرار في تحديث باقي حقول ملف التعريف
+        
         return super().update(instance, validated_data)    
 
 
