@@ -332,7 +332,7 @@ def get_recommendations_user(request):
         similar_user_profile = users_df.iloc[similar_user_idx]
         similar_user_reviews = reviews_df[reviews_df['user_id'] == similar_user_profile['user_id']]
         print("User ID:", similar_user_profile['user_id'])  # Print user_id for debugging
-        print("Flight column values:", similar_user_reviews['flight'])  # Print flight column values for debugging
+        #print("Flight column values:", similar_user_reviews['flight'])  # Print flight column values for debugging
         
         if 'flight' in similar_user_reviews.columns:
          similar_user_reviews = similar_user_reviews.dropna(subset=['flight']) 
