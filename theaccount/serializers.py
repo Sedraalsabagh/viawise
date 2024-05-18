@@ -29,9 +29,9 @@ class LoginSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model =UserProfile
-        fields=('user','age','gender','address','marital_status','occupation')
+        fields=('age','gender','address','marital_status','occupation')
 
-        extra_kword={
+        extra_kword={ 
             
              'age':{'required':True,'allow_blank':False},
               

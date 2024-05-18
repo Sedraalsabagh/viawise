@@ -240,7 +240,11 @@ def user_profile(request):
         return Response(serializer.data)
         
     elif request.method == 'PUT':
-        serializer = UserProfileSerializer(instance=user_profile, data=request.data)
+        # Remove 'user' field from request data
+        request_data = request.data.copy()
+        request_data.pop('user', None)
+        
+        serializer = UserProfileSerializer(instance=user_profile, data=request_data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
