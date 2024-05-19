@@ -333,9 +333,9 @@ def get_recommendations_user(request):
         #print("Flight column values:", similar_user_reviews['flight'])  # Print flight column values for debugging
         
         if 'flight' in similar_user_reviews.columns:
-         similar_user_reviews = similar_user_reviews.dropna(subset=['flight']) 
+         similar_user_reviews = similar_user_reviews.dropna(subset=['reviews']) 
 
-         recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 3]['flight'])
+         recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 3]['reviews'])
 
     recommended_flights = list(set(recommended_flights))
     
