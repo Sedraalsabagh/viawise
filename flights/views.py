@@ -328,12 +328,12 @@ def get_recommendations_user(request):
 
     for similar_user_idx in similar_users_indices:
         similar_user_profile = users_df.iloc[similar_user_idx]
-        similar_user_reviews = reviews_df[reviews_df['user_id'] == similar_user_profile['user_id']]
+        similar_user_reviews = reviews_df[reviews_df['user'] == similar_user_profile['user_id']]
         
-        if 'reviews' in similar_user_reviews.columns:
-         similar_user_reviews = similar_user_reviews.dropna(subset=['reviews']) 
+        #if 'reviews' in similar_user_reviews.columns:
+         #similar_user_reviews = similar_user_reviews.dropna(subset=['reviews']) 
 
-         recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 3]['reviews'])
+        recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 3]['reviews'])
 
     recommended_flights = list(set(recommended_flights))
     
