@@ -270,79 +270,79 @@ def flight_details(request, flight_id):
 
 
 #Recommendation
-from rest_framework.decorators import api_view
+# Recommendation
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from django.http import JsonResponse
 from theaccount.models import UserProfile
 from .models import Review
+from rest_framework.permissions import IsAuthenticated
 from sklearn.preprocessing import LabelEncoder
-import requests
 import numpy as np
 import pandas as pd
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def get_recommendations_user(request):
-  user_id = request.user.id
-  if user_id is not None:
+    user_id = request.user.id
+    if user_id is not None:
+        users_data = UserProfile.objects.all().values()
+        reviews_data = Review.objects.all().values()
 
-    users_data = UserProfile.objects.all().values()
-    users_df = pd.DataFrame(users_data)
-    
-    users_df.rename(columns={'user': 'user_id'}, inplace=True)
-    users_df.fillna(users_df.mode().iloc[0], inplace=True)
-    
-    gender_mapping = {'male': 0, 'female': 1}
-    users_df['gender_encoded'] = users_df['gender'].map(gender_mapping)
-    users_df.drop('gender', axis=1, inplace=True)
-    
-    label_encoder = LabelEncoder()
-    users_df['address_encoded'] = label_encoder.fit_transform(users_df['address'])
-    users_df.drop('address', axis=1, inplace=True)
-    users_df['occupation_encoded'] = label_encoder.fit_transform(users_df['occupation'])
-    users_df.drop('occupation', axis=1, inplace=True)
-    users_df['marital_status_encoded'] = label_encoder.fit_transform(users_df['marital_status'])
-    users_df.drop('marital_status', axis=1, inplace=True)
-    
-    weights = [1, 0.1, 1, 1, 1]
-    user_variables = ['age', 'gender_encoded', 'occupation_encoded', 'marital_status_encoded', 'address_encoded']
-    users_similarity_matrix_jaccard = np.zeros((len(users_df), len(users_df)))
+        if not users_data or not reviews_data:
+            return JsonResponse({"error": "No sufficient data for recommendations"}, status=400)
 
-    for i, user1 in enumerate(users_df[user_variables].values):
-        for j, user2 in enumerate(users_df[user_variables].values):
-            intersection = np.sum(np.minimum(user1, user2) * weights)
-            union = np.sum(np.maximum(user1, user2) * weights)
-            similarity = intersection / union
-            users_similarity_matrix_jaccard[i, j] = similarity
-
-    user_names = users_df.index
-    users_similarity_df_jaccard = pd.DataFrame(users_similarity_matrix_jaccard, index=users_df['user_id'], columns=users_df['user_id'])
-
-    reviews_data = Review.objects.all().values()
-    reviews_df = pd.DataFrame(reviews_data)
-    
-    similar_users_indices = np.where(users_similarity_df_jaccard[user_id] > 0.999)[0]
-
-
-    recommended_flights = []
-
-    for similar_user_idx in similar_users_indices:
-        similar_user_profile = users_df.iloc[similar_user_idx]
-        similar_user_reviews = reviews_df[reviews_df['user_id'] == similar_user_profile['user_id']]
+        users_df = pd.DataFrame(users_data)
+        reviews_df = pd.DataFrame(reviews_data)
         
-        if 'reviews' in similar_user_reviews.columns:
-         similar_user_reviews = similar_user_reviews.dropna(subset=['reviews']) 
+        if user_id not in users_df['user_id'].values:
+            return JsonResponse({"error": "User ID not found in the database"}, status=404)
 
-         recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 3]['reviews'])
+        users_df.rename(columns={'user': 'user_id'}, inplace=True)
+        users_df.fillna(users_df.mode().iloc[0], inplace=True)
+        
+        gender_mapping = {'male': 0, 'female': 1}
+        users_df['gender_encoded'] = users_df['gender'].map(gender_mapping)
+        users_df.drop('gender', axis=1, inplace=True)
+        
+        label_encoder = LabelEncoder()
+        users_df['address_encoded'] = label_encoder.fit_transform(users_df['address'])
+        users_df.drop('address', axis=1, inplace=True)
+        users_df['occupation_encoded'] = label_encoder.fit_transform(users_df['occupation'])
+        users_df.drop('occupation', axis=1, inplace=True)
+        users_df['marital_status_encoded'] = label_encoder.fit_transform(users_df['marital_status'])
+        users_df.drop('marital_status', axis=1, inplace=True)
+        
+        weights = [1, 0.1, 1, 1, 1]
+        user_variables = ['age', 'gender_encoded', 'occupation_encoded', 'marital_status_encoded', 'address_encoded']
+        users_similarity_matrix_jaccard = np.zeros((len(users_df), len(users_df)))
 
-    recommended_flights = list(set(recommended_flights))
-    
-    return JsonResponse({"recommendations": recommended_flights})
+        for i, user1 in enumerate(users_df[user_variables].values):
+            for j, user2 in enumerate(users_df[user_variables].values):
+                intersection = np.sum(np.minimum(user1, user2) * weights)
+                union = np.sum(np.maximum(user1, user2) * weights)
+                similarity = intersection / union
+                users_similarity_matrix_jaccard[i, j] = similarity
 
+        users_similarity_df_jaccard = pd.DataFrame(users_similarity_matrix_jaccard, index=users_df['user_id'], columns=users_df['user_id'])
 
-  else:
-        return JsonResponse({"error": "User ID is missing"})
+        similar_users_indices = np.where(users_similarity_df_jaccard.loc[user_id] > 0.999)[0]
 
+        recommended_flights = []
+
+        for similar_user_idx in similar_users_indices:
+            similar_user_profile = users_df.iloc[similar_user_idx]
+            similar_user_reviews = reviews_df[reviews_df['user_id'] == similar_user_profile['user_id']]
+            
+            if 'reviews' in similar_user_reviews.columns:
+                similar_user_reviews = similar_user_reviews.dropna(subset=['reviews'])
+                recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 3]['reviews'].dropna().tolist())
+
+        recommended_flights = list(set(recommended_flights))
+        
+        return JsonResponse({"recommendations": recommended_flights})
+    else:
+        return JsonResponse({"error": "User ID is missing"}, status=400)
 
 
 
