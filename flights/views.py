@@ -316,7 +316,7 @@ def get_recommendations_user(request):
             users_similarity_matrix_jaccard[i, j] = similarity
 
     user_names = users_df.index
-    users_similarity_df_jaccard = pd.DataFrame(users_similarity_matrix_jaccard, index=user_names, columns=user_names)
+    users_similarity_df_jaccard = pd.DataFrame(users_similarity_matrix_jaccard, index=users_df['user_id'], columns=users_df['user_id'])
 
     reviews_data = Review.objects.all().values()
     reviews_df = pd.DataFrame(reviews_data)
@@ -330,10 +330,10 @@ def get_recommendations_user(request):
         similar_user_profile = users_df.iloc[similar_user_idx]
         similar_user_reviews = reviews_df[reviews_df['user_id'] == similar_user_profile['user_id']]
         
-        #if 'reviews' in similar_user_reviews.columns:
-         #similar_user_reviews = similar_user_reviews.dropna(subset=['reviews']) 
+        if 'reviews' in similar_user_reviews.columns:
+         similar_user_reviews = similar_user_reviews.dropna(subset=['reviews']) 
 
-        recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 3]['reviews'])
+         recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 3]['reviews'])
 
     recommended_flights = list(set(recommended_flights))
     
