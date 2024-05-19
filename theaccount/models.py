@@ -57,8 +57,7 @@ class UserProfile(models.Model):
         ('artist', 'Artist'),
         ('other', 'other'),
     )
-    user=models.OneToOneField(settings.AUTH_USER_MODEL,
-    on_delete=models.CASCADE)
+    user=models.OneToOneField(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
     photo=models.ImageField(upload_to='users%Y/%m/%d/',blank=True)
     gender=models.CharField(choices=GUNDER_CHOICES,null=True)
     age = models.PositiveSmallIntegerField(blank=True, null=True)
