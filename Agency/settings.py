@@ -41,8 +41,7 @@ SITE_ID = 1
 
 INSTALLED_APPS = [#safa
     #sedra
-    'suit',
-    #'jazzmin',
+    'jazzmin',
     'theaccount.apps.AccountConfig',
     'django.contrib.admin',
     'django.contrib.auth',
