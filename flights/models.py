@@ -157,7 +157,7 @@ class RefundedPayment(models.Model):
 
 
 class Review(models.Model):
-    flight = models.ForeignKey(Flight, null=True, on_delete=models.CASCADE, related_name='reviews')
+    flight = models.ForeignKey(Flight, null=True, on_delete=models.CASCADE)
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     comment = models.TextField(max_length=2000, default="", blank=False)
     ratings = models.IntegerField(default=0)
