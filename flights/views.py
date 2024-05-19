@@ -348,6 +348,16 @@ def get_recommendations_user(request):
 
 
 
+
+
+
+
+
+
+
+'''
+
+
 #Recommendation2
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -423,4 +433,4 @@ def get_recommendations(request):
 
     return JsonResponse({"recommendations": recommended_flights})
 
-
+'''
