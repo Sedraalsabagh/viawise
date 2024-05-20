@@ -360,7 +360,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
 from datetime import datetime
-from .models import  Flight
+from .models import Flight
 from booking.models import Booking
 import pandas as pd
 import numpy as np
@@ -404,8 +404,16 @@ def get_recommendations(request):
 
     for i in range(len(flights_features_array)):
         for j in range(i, len(flights_features_array)):
-            flight1_departure_date = datetime.strptime(flights_df.iloc[i]['departure_date'], "%Y-%m-%d")
-            flight2_departure_date = datetime.strptime(flights_df.iloc[j]['departure_date'], "%Y-%m-%d")
+            flight1_departure_date = flights_df.iloc[i]['departure_date']
+            flight2_departure_date = flights_df.iloc[j]['departure_date']
+
+            if isinstance(flight1_departure_date, datetime.date):
+                flight1_departure_date = flight1_departure_date.strftime("%Y-%m-%d")
+            if isinstance(flight2_departure_date, datetime.date):
+                flight2_departure_date = flight2_departure_date.strftime("%Y-%m-%d")
+
+            flight1_departure_date = datetime.strptime(flight1_departure_date, "%Y-%m-%d")
+            flight2_departure_date = datetime.strptime(flight2_departure_date, "%Y-%m-%d")
 
             if flight1_departure_date >= current_time and flight2_departure_date >= current_time:
                 similarity_matrix[i, j] = jaccard_distance_weighted(flights_features_array[i], flights_features_array[j], weights)
@@ -428,6 +436,3 @@ def get_recommendations(request):
         recommended_flights.append(flights_df.iloc[idx].to_dict())
 
     return JsonResponse({"recommendations": recommended_flights})
-
-
-
