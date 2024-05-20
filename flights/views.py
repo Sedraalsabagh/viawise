@@ -448,7 +448,6 @@ def get_recommendations(request):
 
 
 #Recommendation3
-
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
@@ -482,6 +481,13 @@ def get_recommendations2(request):
     flights = Flight.objects.all().values('id', 'price_flight', 'departure_city', 'destination_activity', 'destination_climate', 'destination_type', 'departure_date')
     flights_df = pd.DataFrame(flights)
     flights_df['price_flight'] = flights_df['price_flight'].astype(float)
+
+    # Convert departure_date to datetime
+    flights_df['departure_date'] = pd.to_datetime(flights_df['departure_date'])
+
+    # Filter out past flights
+    current_time = datetime.now()
+    flights_df = flights_df[flights_df['departure_date'] >= current_time]
 
     # Preprocess flight data
     flights_df['departure_city'] = flights_df['departure_city'].str.capitalize()
@@ -524,7 +530,7 @@ def get_recommendations2(request):
     merged_data = pd.concat([flights_features_encoded, user_preferences], ignore_index=True).fillna(0)
     user_similarity = cosine_similarity(merged_data)[-1][:-1]
 
-    # top similar flights
+    # Top similar flights
     top_similar_flights_indices = user_similarity.argsort()[::-1][:5]
 
     # Get recommended flights
