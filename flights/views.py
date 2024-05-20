@@ -359,7 +359,7 @@ def get_recommendations_user(request):
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
-from datetime import datetime
+from datetime import datetime, date
 from .models import Flight
 from booking.models import Booking
 import pandas as pd
@@ -407,9 +407,10 @@ def get_recommendations(request):
             flight1_departure_date = flights_df.iloc[i]['departure_date']
             flight2_departure_date = flights_df.iloc[j]['departure_date']
 
-            if isinstance(flight1_departure_date, datetime.date):
+            # Verify if the dates are date objects and convert them to strings if necessary
+            if isinstance(flight1_departure_date, date):
                 flight1_departure_date = flight1_departure_date.strftime("%Y-%m-%d")
-            if isinstance(flight2_departure_date, datetime.date):
+            if isinstance(flight2_departure_date, date):
                 flight2_departure_date = flight2_departure_date.strftime("%Y-%m-%d")
 
             flight1_departure_date = datetime.strptime(flight1_departure_date, "%Y-%m-%d")
