@@ -325,18 +325,16 @@ def get_recommendations_user(request):
 
         similar_users_indices = np.where(users_similarity_df_jaccard.loc[user_id] > 0.7)[0]
         
-        # إذا لم يكن هناك مستخدمين مشابهين
         if len(similar_users_indices) == 0:
             return JsonResponse({"error": "No similar users found"}, status=404)
 
         recommended_flights = []
 
         for similar_user_idx in similar_users_indices:
-            similar_user_profile = users_df.iloc[similar_user_idx]
-            similar_user_reviews = reviews_df[reviews_df['user_id'] == similar_user_profile['user_id']]
+            similar_user_id = users_df.iloc[similar_user_idx]['user_id']
+            similar_user_reviews = reviews_df[reviews_df['user_id'] == similar_user_id]
             
-            if 'reviews' in similar_user_reviews.columns:
-                similar_user_reviews = similar_user_reviews.dropna(subset=['reviews'])
+            if not similar_user_reviews.empty:
                 recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 3]['reviews'].dropna().tolist())
 
         if len(recommended_flights) == 0:
@@ -347,9 +345,6 @@ def get_recommendations_user(request):
         return JsonResponse({"recommendations": recommended_flights})
     else:
         return JsonResponse({"error": "User ID is missing"}, status=400)
-
-
-
 
 
 
