@@ -591,3 +591,13 @@ def get_user_point_balance(request):
         return Response(serializer.data)  
     else:
         return Response({'error': 'User is not authenticated'}, status=401)    
+    
+@api_view(['GET'])
+def booking_details(request, id_booking):
+    try:
+        booking = Booking.objects.get(pk=id_booking)
+    except Booking.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    serializer = BookingSerializer100(booking)
+    return Response(serializer.data)

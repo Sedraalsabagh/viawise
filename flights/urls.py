@@ -17,8 +17,8 @@ urlpatterns = [
     path('flights/',views.get_all_flights,name='flight'),
     path('recommendations1/', views.get_recommendations_user, name='get_recommendations_user'),
     #path('recommend_flights/', views.recommend_flights, name='recommend_flights'),
-    path('recommend-flights/', RecommendFlightsAPIView.as_view(), name='recommend-flights'),
-    path('recommendations/', get_recommendations, name='get_recommendations'),
+  #  path('recommend-flights/', RecommendFlightsAPIView.as_view(), name='recommend-flights'),
+   # path('recommendations/', get_recommendations, name='get_recommendations'),
 
 
     

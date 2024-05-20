@@ -16,9 +16,10 @@ path('load_seed_data/', views.load_seed_data, name='load_seed_data'),
 path('AllBookings/', AllBookingsAPIView.as_view(), name='AllBookings'),
 path('booking/', views.booking, name='create_booking'),
 path('privat_offers/', views.get_user_point_balance, name='privatoffers'),
+path('booking_details/<int:id_booking>', views.booking_details),
 
 
 
 
-
+    
 ]

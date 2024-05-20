@@ -174,3 +174,24 @@ class PrivateSerializer2(serializers.ModelSerializer):
             return None                
 
 
+################3
+
+
+class FlightSerializer100(serializers.ModelSerializer):
+    class Meta:
+        model = Flight
+        fields = ['airportDeparture', 'airportArrival','departure_date']
+
+class PassengerSerializer100(serializers.ModelSerializer):
+    class Meta:
+        model = Passenger
+        fields = ['first_name', 'last_name','gender','passport_number']
+
+class BookingSerializer100(serializers.ModelSerializer):
+    Passenger = PassengerSerializer100()
+    outbound_flight = FlightSerializer100()
+    return_flight = FlightSerializer100()
+
+    class Meta:
+        model = Booking
+        fields = ['outbound_flight', 'return_flight', 'Passenger', 'total_cost']
