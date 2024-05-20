@@ -335,7 +335,7 @@ def get_recommendations_user(request):
             similar_user_reviews = reviews_df[reviews_df['user_id'] == similar_user_id]
             
             if not similar_user_reviews.empty:
-                recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 3]['reviews'].dropna().tolist())
+                recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 3]['flight'].dropna().tolist())
 
         if len(recommended_flights) == 0:
             return JsonResponse({"error": "No recommendations found for similar users"}, status=404)
@@ -345,6 +345,9 @@ def get_recommendations_user(request):
         return JsonResponse({"recommendations": recommended_flights})
     else:
         return JsonResponse({"error": "User ID is missing"}, status=400)
+
+
+
 
 
 
