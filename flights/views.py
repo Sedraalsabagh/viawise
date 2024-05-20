@@ -270,7 +270,6 @@ def flight_details(request, flight_id):
 
 
 #Recommendation
-
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from django.http import JsonResponse
@@ -332,7 +331,7 @@ def get_recommendations_user(request):
 
         for similar_user_idx in similar_users_indices:
             similar_user_profile = users_df.iloc[similar_user_idx]
-            similar_user_reviews = reviews_df[reviews_df['user'] == similar_user_profile['user_id']]
+            similar_user_reviews = reviews_df[reviews_df['user_id'] == similar_user_profile['user_id']]
             
             if 'reviews' in similar_user_reviews.columns:
                 similar_user_reviews = similar_user_reviews.dropna(subset=['reviews'])
