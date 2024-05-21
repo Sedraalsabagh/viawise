@@ -379,11 +379,11 @@ def jaccard_distance_weighted(u, v, weights=None):
 def get_recommendations(request):
     user = request.user
 
-    # Fetch bookings for the current user
+    #  bookings for the current user
     bookings = Booking.objects.filter(user=user, outbound_flight__isnull=False).values('outbound_flight')
     outbound_flights = [booking['outbound_flight'] for booking in bookings]
 
-    # Fetch flight data
+    #  flight data
     flights = Flight.objects.all().values('id', 'price_flight', 'departure_city', 'destination_activity', 'destination_climate', 'destination_type', 'departure_date')
     flights_df = pd.DataFrame(flights)
     flights_df['price_flight'] = flights_df['price_flight'].astype(float)
@@ -409,7 +409,6 @@ def get_recommendations(request):
             flight1_departure_date = flights_df.iloc[i]['departure_date']
             flight2_departure_date = flights_df.iloc[j]['departure_date']
 
-            # Verify if the dates are date objects and convert them to strings if necessary
             if isinstance(flight1_departure_date, date):
                 flight1_departure_date = flight1_departure_date.strftime("%Y-%m-%d")
             if isinstance(flight2_departure_date, date):
@@ -541,3 +540,107 @@ def get_recommendations2(request):
         recommended_flights.append(flights_df.iloc[idx].to_dict())
 
     return JsonResponse({"recommendations": recommended_flights})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#test
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from django.http import JsonResponse
+from theaccount.models import UserProfile
+from .models import Review
+from rest_framework.permissions import IsAuthenticated
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+import pandas as pd
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def recommendations_user(request):
+    user_id = request.user.id
+    if user_id is not None:
+        users_data = UserProfile.objects.all().values()
+        reviews_data = Review.objects.all().values()
+
+        if not users_data or not reviews_data:
+            return JsonResponse({"error": "No sufficient data for recommendations"}, status=400)
+
+        users_df = pd.DataFrame(users_data)
+        reviews_df = pd.DataFrame(reviews_data)
+        
+        if user_id not in users_df['user_id'].values:
+            return JsonResponse({"error": "User ID not found in the database"}, status=404)
+
+        users_df.rename(columns={'user': 'user_id'}, inplace=True)
+        users_df.fillna(users_df.mode().iloc[0], inplace=True)
+        
+        gender_mapping = {'male': 0, 'female': 1}
+        users_df['gender_encoded'] = users_df['gender'].map(gender_mapping)
+        users_df.drop('gender', axis=1, inplace=True)
+        
+        label_encoder = LabelEncoder()
+        users_df['address_encoded'] = label_encoder.fit_transform(users_df['address'])
+        users_df.drop('address', axis=1, inplace=True)
+        users_df['occupation_encoded'] = label_encoder.fit_transform(users_df['occupation'])
+        users_df.drop('occupation', axis=1, inplace=True)
+        users_df['marital_status_encoded'] = label_encoder.fit_transform(users_df['marital_status'])
+        users_df.drop('marital_status', axis=1, inplace=True)
+        
+        user_variables = ['age', 'gender_encoded', 'occupation_encoded', 'marital_status_encoded', 'address_encoded']
+        user_data_matrix = users_df[user_variables].values
+        similarity_matrix = cosine_similarity(user_data_matrix)
+
+        user_index = users_df[users_df['user_id'] == user_id].index[0]
+        similar_users_indices = np.where(similarity_matrix[user_index] > 0.7)[0]
+        
+        if len(similar_users_indices) == 0:
+            return JsonResponse({"error": "No similar users found"}, status=404)
+
+        recommended_flights = []
+
+        for similar_user_idx in similar_users_indices:
+            similar_user_profile = users_df.iloc[similar_user_idx]
+            similar_user_reviews = reviews_df[reviews_df['user_id'] == similar_user_profile['user_id']]
+            
+            if 'reviews' in similar_user_reviews.columns:
+                similar_user_reviews = similar_user_reviews.dropna(subset=['reviews'])
+                recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 3]['reviews'].dropna().tolist())
+
+        if len(recommended_flights) == 0:
+            return JsonResponse({"error": "No recommendations found for similar users"}, status=404)
+
+        recommended_flights = list(set(recommended_flights))
+        
+        return JsonResponse({"recommendations": recommended_flights})
+    else:
+        return JsonResponse({"error": "User ID is missing"}, status=400)
