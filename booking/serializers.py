@@ -175,7 +175,7 @@ class PrivateSerializer2(serializers.ModelSerializer):
 
 
 ################3
-
+#booking_details
 
 class FlightSerializer100(serializers.ModelSerializer):
     class Meta:

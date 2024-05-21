@@ -37,7 +37,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 
-SITE_ID = 1
+#SITE_ID = 1
 
 INSTALLED_APPS = [#safa
     #sedra
@@ -60,13 +60,13 @@ INSTALLED_APPS = [#safa
     'hotel',
 
      #all auth configurations
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google'
+    #'allauth',
+    #'allauth.account',
+    #'allauth.socialaccount',
+    #'allauth.socialaccount.providers.google'
     
 ]
-
+'''
 
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -84,6 +84,7 @@ SOCIALACCOUNT_PROVIDERS = {
         }
     }
 }
+'''
 AUTH_USER_MODEL ='theaccount.User'
 
 
@@ -95,7 +96,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
+    #'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'Agency.urls'
@@ -138,10 +139,18 @@ DATABASES = {
 
 
 
+
+
 DATABASES  = {
             'default':dj_database_url.parse('postgres://viawise_user:zKrBtWRSpsXKzM8KsGwfsdmB8GeXPSBN@dpg-covno47jbltc73dh8jn0-a.oregon-postgres.render.com/viawise')  
               }
 
+ 
+ 
+ 
+ 
+ 
+ 
  
 '''
 CELERY_BEAT_SCHEDULE = {
@@ -222,7 +231,7 @@ EMAIL_HOST_PASSWORD = '05b97e2ccf3d56'
 EMAIL_PORT = '2525'
 EMAIL_USE_TLS = False
 
-
+'''
 ##allauth
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -232,3 +241,4 @@ LOGIN_REDIRECT_URL ='/'
 LOGOUT_REDIRECT_URL = '/'
 
 
+'''
