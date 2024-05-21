@@ -568,11 +568,6 @@ def get_recommendations2(request):
 
 
 
-
-
-
-
-#test
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from django.http import JsonResponse
@@ -580,7 +575,6 @@ from theaccount.models import UserProfile
 from .models import Review
 from rest_framework.permissions import IsAuthenticated
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 import pandas as pd
 
@@ -597,17 +591,16 @@ def recommendations_user(request):
 
         users_df = pd.DataFrame(users_data)
         reviews_df = pd.DataFrame(reviews_data)
-        
-        if user_id not in users_df['user_id'].values:
-            return JsonResponse({"error": "User ID not found in the database"}, status=404)
 
-        users_df.rename(columns={'user': 'user_id'}, inplace=True)
+        # Ensure the correct user_id column
+        users_df.rename(columns={'user_id': 'user'}, inplace=True)
         users_df.fillna(users_df.mode().iloc[0], inplace=True)
-        
+
+        # Encode categorical variables
         gender_mapping = {'male': 0, 'female': 1}
         users_df['gender_encoded'] = users_df['gender'].map(gender_mapping)
         users_df.drop('gender', axis=1, inplace=True)
-        
+
         label_encoder = LabelEncoder()
         users_df['address_encoded'] = label_encoder.fit_transform(users_df['address'])
         users_df.drop('address', axis=1, inplace=True)
@@ -615,14 +608,22 @@ def recommendations_user(request):
         users_df.drop('occupation', axis=1, inplace=True)
         users_df['marital_status_encoded'] = label_encoder.fit_transform(users_df['marital_status'])
         users_df.drop('marital_status', axis=1, inplace=True)
-        
-        user_variables = ['age', 'gender_encoded', 'occupation_encoded', 'marital_status_encoded', 'address_encoded']
-        user_data_matrix = users_df[user_variables].values
-        similarity_matrix = cosine_similarity(user_data_matrix)
 
-        user_index = users_df[users_df['user_id'] == user_id].index[0]
-        similar_users_indices = np.where(similarity_matrix[user_index] > 0.5)[0]
-        
+        # Compute similarity matrix using Jaccard index
+        weights = [1, 0.1, 2, 1, 3]
+        user_variables = ['age', 'gender_encoded', 'occupation_encoded', 'marital_status_encoded', 'address_encoded']
+        users_similarity_matrix_jaccard = np.zeros((len(users_df), len(users_df)))
+
+        for i, user1 in enumerate(users_df[user_variables].values):
+            for j, user2 in enumerate(users_df[user_variables].values):
+                intersection = np.sum(np.minimum(user1, user2) * weights)
+                union = np.sum(np.maximum(user1, user2) * weights)
+                similarity = intersection / union if union != 0 else 0
+                users_similarity_matrix_jaccard[i, j] = similarity
+
+        user_index = users_df[users_df['user'] == user_id].index[0]
+        similar_users_indices = np.where(users_similarity_matrix_jaccard[user_index] > 0.5)[0]
+
         if len(similar_users_indices) == 0:
             return JsonResponse({"error": "No similar users found"}, status=404)
 
@@ -630,17 +631,17 @@ def recommendations_user(request):
 
         for similar_user_idx in similar_users_indices:
             similar_user_profile = users_df.iloc[similar_user_idx]
-            similar_user_reviews = reviews_df[reviews_df['user_id'] == similar_user_profile['user_id']]
-            
-            if 'reviews' in similar_user_reviews.columns:
-                similar_user_reviews = similar_user_reviews.dropna(subset=['reviews'])
-                recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 3]['reviews'].dropna().tolist())
+            similar_user_reviews = reviews_df[reviews_df['user_id'] == similar_user_profile['user']]
+
+            # Add reviews to recommendations if rating is 3 or higher
+            if 'flight_id' in similar_user_reviews.columns:
+                similar_user_reviews = similar_user_reviews.dropna(subset=['flight_id'])
+                recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 3]['flight_id'].dropna().tolist())
 
         if len(recommended_flights) == 0:
             return JsonResponse({"error": "No recommendations found for similar users"}, status=404)
 
         recommended_flights = list(set(recommended_flights))
-        
         return JsonResponse({"recommendations": recommended_flights})
     else:
         return JsonResponse({"error": "User ID is missing"}, status=400)
