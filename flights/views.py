@@ -621,7 +621,7 @@ def recommendations_user(request):
         similarity_matrix = cosine_similarity(user_data_matrix)
 
         user_index = users_df[users_df['user_id'] == user_id].index[0]
-        similar_users_indices = np.where(similarity_matrix[user_index] > 0.7)[0]
+        similar_users_indices = np.where(similarity_matrix[user_index] > 0.5)[0]
         
         if len(similar_users_indices) == 0:
             return JsonResponse({"error": "No similar users found"}, status=404)
