@@ -566,13 +566,12 @@ def get_recommendations2(request):
 
 
 
-
-
+#user user 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from django.http import JsonResponse
 from theaccount.models import UserProfile
-from .models import Review
+from .models import Review, Flight
 from rest_framework.permissions import IsAuthenticated
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
@@ -592,11 +591,9 @@ def recommendations_user(request):
         users_df = pd.DataFrame(users_data)
         reviews_df = pd.DataFrame(reviews_data)
 
-        # Ensure the correct user_id column
         users_df.rename(columns={'user_id': 'user'}, inplace=True)
         users_df.fillna(users_df.mode().iloc[0], inplace=True)
 
-        # Encode categorical variables
         gender_mapping = {'male': 0, 'female': 1}
         users_df['gender_encoded'] = users_df['gender'].map(gender_mapping)
         users_df.drop('gender', axis=1, inplace=True)
@@ -609,7 +606,6 @@ def recommendations_user(request):
         users_df['marital_status_encoded'] = label_encoder.fit_transform(users_df['marital_status'])
         users_df.drop('marital_status', axis=1, inplace=True)
 
-        # Compute similarity matrix using Jaccard index
         weights = [1, 0.1, 2, 1, 3]
         user_variables = ['age', 'gender_encoded', 'occupation_encoded', 'marital_status_encoded', 'address_encoded']
         users_similarity_matrix_jaccard = np.zeros((len(users_df), len(users_df)))
@@ -641,7 +637,8 @@ def recommendations_user(request):
         if len(recommended_flights) == 0:
             return JsonResponse({"error": "No recommendations found for similar users"}, status=404)
 
-        recommended_flights = list(set(recommended_flights))
-        return JsonResponse({"recommendations": recommended_flights})
+        recommended_flights_details = Flight.objects.filter(id__in=recommended_flights).values()
+
+        return JsonResponse({"recommendations": list(recommended_flights_details)})
     else:
         return JsonResponse({"error": "User ID is missing"}, status=400)
