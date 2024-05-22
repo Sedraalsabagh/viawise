@@ -272,7 +272,7 @@ def similar_flights(request, booking_id):
     ).exclude(id=outbound_flight.id) # الرحلة الاساسية بتروح#
 
     serializer = FlightSerializer(similar_flights, many=True)
-    return Response(serializer.data)
+    return Response(serializer.data) #
 
 
 
