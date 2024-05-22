@@ -310,7 +310,7 @@ def modify_booking(request, booking_id):
     except Booking.DoesNotExist:
         return Response({'error': 'Booking not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    # التحقق مما إذا كان نوع الحجز هو "كامل"
+    
     if booking.status != 'CMP':
         return Response({'error': 'Only completed bookings can be modified'}, status=status.HTTP_400_BAD_REQUEST)
 
