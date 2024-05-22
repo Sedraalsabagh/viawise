@@ -499,11 +499,11 @@ def get_recommendations2(request):
     # Define feature weights
     features = ['price_flight', 'destination_activity', 'destination_climate', 'destination_type', 'departure_city']
     weights = {
-        'price_flight': 1,
-        'destination_activity': 1.5,
+        'price_flight': 3,
+        'destination_activity': 2,
         'destination_climate': 3,
-        'destination_type': 1,
-        'departure_city': 2
+        'destination_type': 2,
+        'departure_city': 5
     }
 
     # Calculate weighted similarity matrix
