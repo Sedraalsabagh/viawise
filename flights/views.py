@@ -269,10 +269,10 @@ def similar_flights(request, booking_id):
     similar_flights = Flight.objects.filter(
         airportDeparture=outbound_flight.airportDeparture,
         airportArrival=outbound_flight.airportArrival
-    ).exclude(id=outbound_flight.id) # الرحلة الاساسية بتروح#
+    ).exclude(id=outbound_flight.id).order_by('departure_date') #هيك بتروح الرحلة نفسها 
 
     serializer = FlightSerializer(similar_flights, many=True)
-    return Response(serializer.data) #
+    return Response(serializer.data)
 
 
 
