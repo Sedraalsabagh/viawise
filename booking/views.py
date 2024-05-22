@@ -303,70 +303,31 @@ def update_booking_status():
             booking.save()
 '''            
 
-@api_view(['PUT'])
-def modify_booking(request):
-    booking_id = request.data.get('booking_id')
-    new_departure_date = request.data.get('new_departure_date')  
-
+@api_view(['PATCH'])
+def modify_booking(request, booking_id):
     try:
-        booking = Booking.objects.get(id=booking_id)
+        booking = Booking.objects.get(pk=booking_id)
     except Booking.DoesNotExist:
-        return Response({"message": "Booking does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': 'Booking not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    
-    try:
-        new_departure_date = datetime.strptime(new_departure_date, '%Y-%m-%d').date()
-    except ValueError:
-        return Response({"message": "Invalid date format."}, status=status.HTTP_400_BAD_REQUEST)
+    # التحقق مما إذا كان نوع الحجز هو "كامل"
+    if booking.status != 'CMP':
+        return Response({'error': 'Only completed bookings can be modified'}, status=status.HTTP_400_BAD_REQUEST)
 
-    
-    difference_in_cost = 0  
+    outbound_flight_id = request.data.get('outbound_flight_id')
 
-   
-    if difference_in_cost > 0:
-        
+    if outbound_flight_id:
+        try:
+            outbound_flight = Flight.objects.get(pk=outbound_flight_id)
+            booking.outbound_flight = outbound_flight
+        except Flight.DoesNotExist:
+            return Response({'error': 'Outbound flight not found'}, status=status.HTTP_404_NOT_FOUND)
+    else:
+        return Response({'error': 'Outbound flight ID is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        
-        booking.total_cost += difference_in_cost
-        booking.save()
-
-   
-    old_outbound_flight = booking.outbound_flight
-    new_outbound_flight = Flight.objects.get(departure_date=new_departure_date)  
-
-    
-    if booking.passenger_class == 'Economy':
-        old_outbound_flight.economy_remaining += 1
-    elif booking.passenger_class == 'First':
-        old_outbound_flight.first_remaining += 1
-    elif booking.passenger_class == 'Business':
-        old_outbound_flight.business_remaining += 1
-
-    old_outbound_flight.save()
-
-    
-    if booking.passenger_class == 'Economy':
-        new_outbound_flight.economy_remaining -= 1
-    elif booking.passenger_class == 'First':
-        new_outbound_flight.first_remaining -= 1
-    elif booking.passenger_class == 'Business':
-        new_outbound_flight.business_remaining -= 1
-
-    new_outbound_flight.save()
-
-    
-    booking.outbound_flight = new_outbound_flight
     booking.save()
-
-    return Response({"message": "Booking updated successfully."}, status=status.HTTP_200_OK)
-
-
-
-
-
-
-
-
+    serializer = BookingSerializer(booking)
+    return Response({'message': 'Booking updated successfully'}, status=status.HTTP_200_OK)
 
 
 
