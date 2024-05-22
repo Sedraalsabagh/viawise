@@ -255,7 +255,25 @@ def flight_details(request, flight_id):
     return Response(serializer.data)
 
 
+@api_view(['GET'])
+def similar_flights(request, booking_id):
+    try:
+        booking = Booking.objects.get(pk=booking_id)
+    except Booking.DoesNotExist:
+        return Response({'error': 'Booking not found'}, status=404)
 
+    outbound_flight = booking.outbound_flight
+    if not outbound_flight:
+        return Response({'error': 'No outbound flight found for this booking'}, status=404)
+
+    
+    similar_flights = Flight.objects.filter(
+        airportDeparture=outbound_flight.airportDeparture,
+        airportArrival=outbound_flight.airportArrival
+    ).exclude(id=outbound_flight.id) # الرحلة الاساسية بتروح#
+
+    serializer = FlightSerializer(similar_flights, many=True)
+    return Response(serializer.data)
 
 
 
