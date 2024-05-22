@@ -1,7 +1,7 @@
 from django.urls import path,include
 from . import views
 from .views import FlightListView,SeedDatabaseAPIView
-from .exploer import explore_destination
+#from .exploer import explore_destination
 
 
 
@@ -22,7 +22,7 @@ urlpatterns = [
     #path('recommend-flights/', RecommendFlightsAPIView.as_view(), name='recommend-flights'),
     path('get_recommendations2/', views.get_recommendations2, name='get_recommendations2'),
     path('recommendations_user/', views.recommendations_user, name='recommendations_user'),
-    path('explore/',explore_destination, name='explore_destination'),
+   # path('explore/',explore_destination, name='explore_destination'),
 
 
     
