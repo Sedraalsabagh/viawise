@@ -679,7 +679,8 @@ def recommendations_user(request):#true
 #Recommendation2
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpRequest
+
 from datetime import datetime, date
 from .models import Flight
 from booking.models import Booking
@@ -767,23 +768,20 @@ def get_recommendations(request):#true
 
 
 
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def recommendations_combined(request):
-    user_recommendations = recommendations_user(request)
-    flight_recommendations = get_recommendations(request)
+    django_request = HttpRequest()
+    django_request.user = request.user
+    django_request.method = 'GET'
+    
+    user_response = recommendations_user(django_request)
+    flight_response = get_recommendations(django_request)
 
-    if isinstance(user_recommendations, JsonResponse):
-        user_recommendations = user_recommendations.content
-        user_recommendations = json.loads(user_recommendations)
-
-    if isinstance(flight_recommendations, JsonResponse):
-        flight_recommendations = flight_recommendations.content
-        flight_recommendations = json.loads(flight_recommendations)
+    user_recommendations = json.loads(user_response.content).get("recommendations", []) if isinstance(user_response, JsonResponse) else user_response
+    flight_recommendations = json.loads(flight_response.content).get("recommendations", []) if isinstance(flight_response, JsonResponse) else flight_recommendations
 
     combined_recommendations = {frozenset(item.items()): item for item in user_recommendations + flight_recommendations}
     unique_recommendations = list(combined_recommendations.values())
 
     return JsonResponse({"recommendations": unique_recommendations})
-
