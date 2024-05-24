@@ -24,6 +24,7 @@ urlpatterns = [
     path('recommendations_user/', views.recommendations_user, name='recommendations_user'),
    # path('explore/',explore_destination, name='explore_destination'),
     path('similar_flights/<int:booking_id>/', views.similar_flights, name='similar_flights'),
+    path('recommendations_combined/', views.recommendations_combined, name='recommendations_combined'),
 
 
     
