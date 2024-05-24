@@ -762,8 +762,6 @@ def get_recommendations(request):#true
 
 
 
-
-
 import json
 from django.http import HttpRequest, JsonResponse
 from rest_framework.decorators import api_view, permission_classes
@@ -785,13 +783,9 @@ def recommendations_combined(request):
     
     if isinstance(user_response, JsonResponse):
         user_recommendations = json.loads(user_response.content).get("recommendations", [])
-    else:
-        user_recommendations = user_response
     
     if isinstance(flight_response, JsonResponse):
         flight_recommendations = json.loads(flight_response.content).get("recommendations", [])
-    else:
-        flight_recommendations = flight_response
 
     combined_recommendations = {frozenset(item.items()): item for item in user_recommendations + flight_recommendations}
     unique_recommendations = list(combined_recommendations.values())
