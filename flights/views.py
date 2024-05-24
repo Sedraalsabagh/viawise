@@ -766,7 +766,6 @@ def get_recommendations(request):#true
 
 
 
-'''
 
 
 @api_view(['GET'])
@@ -788,4 +787,3 @@ def recommendations_combined(request):
 
     return JsonResponse({"recommendations": unique_recommendations})
 
-'''
