@@ -764,12 +764,10 @@ def get_recommendations(request):#true
 
 
 
-
 import json
-from django.http import HttpRequest
+from django.http import HttpRequest, JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from django.http import JsonResponse
 from .views import recommendations_user, get_recommendations
 
 @api_view(['GET'])
