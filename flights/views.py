@@ -767,7 +767,6 @@ def get_recommendations(request):#true
 
 
 
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def recommendations_combined(request):
@@ -778,8 +777,15 @@ def recommendations_combined(request):
     user_response = recommendations_user(django_request)
     flight_response = get_recommendations(django_request)
 
-    user_recommendations = json.loads(user_response.content).get("recommendations", []) if isinstance(user_response, JsonResponse) else user_response
-    flight_recommendations = json.loads(flight_response.content).get("recommendations", []) if isinstance(flight_response, JsonResponse) else flight_recommendations
+    if isinstance(user_response, JsonResponse):
+        user_recommendations = json.loads(user_response.content).get("recommendations", [])
+    else:
+        user_recommendations = user_response
+
+    if isinstance(flight_response, JsonResponse):
+        flight_recommendations = json.loads(flight_response.content).get("recommendations", [])
+    else:
+        flight_recommendations = flight_response
 
     combined_recommendations = {frozenset(item.items()): item for item in user_recommendations + flight_recommendations}
     unique_recommendations = list(combined_recommendations.values())
