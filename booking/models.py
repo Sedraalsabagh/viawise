@@ -165,3 +165,11 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Payment ID: {self.id}"
+
+    def apply_modification_fee(self, modification_fee):
+        if self.amount >= modification_fee:
+            self.amount -= modification_fee
+            self.save()
+            return True
+        else:
+            return False

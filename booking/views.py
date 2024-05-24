@@ -304,7 +304,7 @@ def update_booking_status():
 '''            
 
 @api_view(['PATCH'])
-def modify_booking(request, booking_id):
+def modify_booking1(request, booking_id):
     try:
         booking = Booking.objects.get(pk=booking_id)
     except Booking.DoesNotExist:
@@ -329,9 +329,65 @@ def modify_booking(request, booking_id):
     serializer = BookingSerializer(booking)
     return Response({'message': 'Booking updated successfully'}, status=status.HTTP_200_OK)
 
+@api_view(['PATCH'])
+def modify_booking(request, booking_id):
+    try:
+        booking = Booking.objects.get(pk=booking_id)
+    except Booking.DoesNotExist:
+        return Response({'error': 'Booking not found'}, status=status.HTTP_404_NOT_FOUND)
 
+    if booking.status != 'CMP':
+        return Response({'error': 'Only completed bookings can be modified'}, status=status.HTTP_400_BAD_REQUEST)
 
+    outbound_flight_id = request.data.get('outbound_flight_id')
+    if outbound_flight_id:
+        try:
+            outbound_flight = Flight.objects.get(pk=outbound_flight_id)
+            booking.outbound_flight = outbound_flight
+        except Flight.DoesNotExist:
+            return Response({'error': 'Outbound flight not found'}, status=status.HTTP_404_NOT_FOUND)
+    else:
+        return Response({'error': 'Outbound flight ID is required'}, status=status.HTTP_400_BAD_REQUEST)
 
+    try:
+        policy = AgencyPolicy.objects.get(policy_type='modify')
+    except AgencyPolicy.DoesNotExist:
+        return Response({'error': 'Modification policy not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    if policy:
+        modification_fee = booking.total_cost * policy.percentage / 100
+
+        if modification_fee > booking.user.balance:
+            return Response({'error': 'Insufficient balance'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # تحديث رصيد المستخدم
+        booking.user.balance -= modification_fee
+        booking.user.save()
+
+        # البحث عن الدفعة المرتبطة بالحجز وتحديثها
+        payment = Payment.objects.filter(booking=booking).first()
+        if payment:
+            payment.amount += modification_fee  # زيادة المبلغ بدلاً من خصمه
+            payment.save()
+        else:
+            # إنشاء دفعة جديدة إذا لم يكن هناك دفعة مرتبطة
+            payment = Payment.objects.create(
+                amount=modification_fee,
+                payment_date=timezone.now(),
+                booking=booking,
+                user=booking.user
+            )
+
+        # تحديث الأماكن المتبقية في الرحلات
+        if booking.outbound_flight.economy_remaining > 0:
+            booking.outbound_flight.economy_remaining -= 1
+            booking.outbound_flight.save()
+            if booking.return_flight:
+                booking.return_flight.economy_remaining += 1
+                booking.return_flight.save()
+
+        booking.save()
+        return Response({'message': 'Booking updated successfully'}, status=status.HTTP_200_OK)
 
 
 
