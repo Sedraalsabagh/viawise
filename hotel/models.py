@@ -7,6 +7,7 @@ class Hotel(models.Model):
     city = models.CharField(max_length=100)
     country = models.CharField(max_length=100)
     star_rating = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)])
+    details=models.TextField(blank=True,max_length=200,null=True)
 
     def __str__(self):
         return self.name
