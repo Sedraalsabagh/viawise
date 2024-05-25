@@ -902,7 +902,7 @@ def jaccard_distance_weighted(u, v, weights=None):
     union = np.maximum(u, v)
     return 1.0 - (np.dot(weights, intersection) / np.dot(weights, union))
 
-@api_view(['GET'])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def combined_recommendations(request):
     user = request.user
@@ -1112,4 +1112,3 @@ def recommendations_user(user):
     else:
         return []
 
-# Make sure to add the necessary imports for cosine_similarity if it is used.
