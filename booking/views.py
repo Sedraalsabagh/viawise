@@ -437,7 +437,7 @@ def modify_booking(request, booking_id):
         )
 
     
-    class_attr = f"{booking.passenger_class.lower()}_remaining"  # e.g., 'economy_remaining'
+    class_attr = f"{booking.passenger_class.lower()}_remaining" 
     Flight.objects.filter(id=booking.outbound_flight.id).update(**{class_attr: F(class_attr) + 1})
     Flight.objects.filter(id=new_outbound_flight.id).update(**{class_attr: F(class_attr) - 1})
 

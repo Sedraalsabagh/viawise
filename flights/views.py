@@ -23,6 +23,9 @@ from django.utils import timezone
 from datetime import datetime,time
 from django.utils.timezone import make_aware
 from .serializer import FlightProfileSerializer
+from firebase_admin import messaging
+import firebase_admin
+from firebase_admin import credentials
 
 # Create your views here.
 @api_view(['GET'])
@@ -226,8 +229,78 @@ def flights_with_offers(request):
         if offers_data:
             flight_data['offers'] = offers_data
             flights_data.append(flight_data)
+            
+ ##############
+     
+
+
+cred = credentials.Certificate(r"C:\Users\admin\OneDrive\Desktop\fcm4flutter-57cd2-firebase-adminsdk-nvrod-0c1c9a25e9.json")
+
+firebase_admin.initialize_app(cred)
+        
+def send_push_notification(token, title, body):
+    message = messaging.Message(
+        notification=messaging.Notification(title=title, body=body),
+        token=token,
+    )
+    
+    try:
+        response = messaging.send(message)
+        return {'status': 'success', 'response': response}
+    except Exception as e:
+        return {'status': 'error', 'error': str(e)}                
 
     return Response(flights_data)
+result = send_push_notification("ftmGf_xeSS23JuN0AKGcTB:APA91bFGPgf00v4BgXFj41qqJz60Qp6p_1NK0qRCnfIyY55JIWc0h-C0dLu5HmEr1INvHEcBqi3ELhCNgD6nktB9Xso07gk0a3uNUSR4ewNcm6IvOAmq6wS0Nz0pV99gUBgnebEgT_Vr", "عنوان الإشعار", "نص الإشعار")
+print(result)
+
+
+
+#############
+
+
+@api_view(['GET'])
+def flights_with_offers(request):
+    current_datetime = timezone.now()
+
+    flights_with_offers = Flight.objects.filter(offer__isnull=False).distinct().order_by('-offer__discount_percentage')
+
+    flights_data = []
+    for flight in flights_with_offers:
+        flight_data = FlightSerializer(flight).data
+        offers_data = []
+
+        for offer in flight.offer_set.all():
+            offer_start_datetime = make_aware(datetime.combine(offer.start_date, time.min))
+            offer_end_datetime = make_aware(datetime.combine(offer.end_date, time.max))
+
+            if offer_start_datetime <= current_datetime <= offer_end_datetime:
+                offer_data = {
+                    'title': offer.title,
+                    'discount_percentage': offer.discount_percentage,
+                    'start_date': offer.start_date,
+                    'end_date': offer.end_date,
+                    'description': offer.description,
+                    'conditions': offer.conditions,
+                }
+                offers_data.append(offer_data)
+
+                
+                if offer_start_datetime == current_datetime:
+                    
+                    tokens = User.objects.filter(is_active=True).values_list('fcm_token', flat=True)
+                    
+                    for token in tokens:
+                        send_push_notification(token, 'Hello all', f": {offer.title}")
+
+        if offers_data:
+            flight_data['offers'] = offers_data
+            flights_data.append(flight_data)
+
+    return Response(flights_data)
+
+
+
 
 
 @api_view(['GET'])
@@ -244,7 +317,7 @@ def flights_offers(request):
 
 
 @api_view(['GET'])
-def flight_details(request, flight_id):
+def flight_details1(request, flight_id):
     try:
         flight = Flight.objects.get(id=flight_id)
     except Flight.DoesNotExist:
@@ -252,9 +325,21 @@ def flight_details(request, flight_id):
 
     serializer = FlightProfileSerializer(flight)
     return Response(serializer.data)
-
-
 @api_view(['GET'])
+def flight_details(request, flight_id1, flight_id2):
+    try:
+        flight1 = Flight.objects.get(id=flight_id1)
+        flight2 = Flight.objects.get(id=flight_id2)
+    except Flight.DoesNotExist:
+        return Response(status=404)
+
+    serializer1 = FlightProfileSerializer(flight1)
+    serializer2 = FlightProfileSerializer(flight2)
+    return Response({"flight1": serializer1.data, "flight2": serializer2.data})
+
+
+
+@api_view(['GET']) # عملتيها منشان العروض
 def similar_flights(request, booking_id):
     try:
         booking = Booking.objects.get(pk=booking_id)
