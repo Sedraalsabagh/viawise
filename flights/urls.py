@@ -3,8 +3,6 @@ from . import views
 from .views import FlightListView,SeedDatabaseAPIView
 #from .exploer import explore_destination
 
-
-
 urlpatterns = [
     path('flight/',views.get_all_flights,name='flight'),
     path('flight/<str:pk>/',views.get_by_id_flights, name='get_by_id_flights'),
@@ -22,10 +20,7 @@ urlpatterns = [
     path('recommendations_user/', views.recommendations_user, name='recommendations_user'),
    # path('explore/',explore_destination, name='explore_destination'),
     path('similar_flights/<int:booking_id>/', views.similar_flights, name='similar_flights'),
-    #path('recommendations_combined/', views.recommendations_combined, name='recommendations_combined'),
-
-
-    
+    path('recommendations_combined/', views.recommendations_combined, name='recommendations_combined'),
              ]
 
 
