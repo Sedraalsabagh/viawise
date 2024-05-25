@@ -15,12 +15,12 @@ urlpatterns = [
     path('search1/',views.get_all,name='on_way'),
     path('search2/',views.get_all2,name='Rund Trip'),
     path('flights/',views.get_all_flights,name='flight'),
-    path('get_recommendations/', views.get_recommendations, name='get_recommendations'),
-    path('get_recommendations2/', views.get_recommendations2, name='get_recommendations2'),
-    path('recommendations_user/', views.recommendations_user, name='recommendations_user'),
+   # path('get_recommendations/', views.get_recommendations, name='get_recommendations'),
+    #path('get_recommendations2/', views.get_recommendations2, name='get_recommendations2'),
+    #path('recommendations_user/', views.recommendations_user, name='recommendations_user'),
     #path('explore/',explore_destination, name='explore_destination'),
     path('similar_flights/<int:booking_id>/', views.similar_flights, name='similar_flights'),
-    path('recommendations_combined/', views.recommendations_combined, name='recommendations_combined'),
+    path('combined_recommendations/', views.combined_recommendations, name='combined_recommendations'),
              ]
 
 
