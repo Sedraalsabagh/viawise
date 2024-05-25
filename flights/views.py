@@ -760,7 +760,6 @@ def get_recommendations(request):#true
 
     return JsonResponse({"recommendations": recommended_flights})
 
-
 import json
 from django.http import HttpRequest, JsonResponse
 from rest_framework.decorators import api_view, permission_classes
@@ -770,34 +769,37 @@ from .views import get_recommendations2, recommendations_user, get_recommendatio
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def recommendations_combined(request):
-    # إعداد طلب GET مع تمرير المعلمات من الطلب الأصلي
+
+    # Create a HttpRequest for each of the recommendation functions
     get_request1 = HttpRequest()
     get_request1.user = request.user
     get_request1.method = 'GET'
     get_request1.GET = request.GET
+    get_request1.auth = request.auth
 
-    # إعداد طلب GET للدوال الأخرى
     get_request2 = HttpRequest()
     get_request2.user = request.user
     get_request2.method = 'GET'
-    
+    get_request2.auth = request.auth
+
     get_request3 = HttpRequest()
     get_request3.user = request.user
     get_request3.method = 'GET'
+    get_request3.auth = request.auth
 
-    # استدعاء الدوال الثلاثة
+    # Call the recommendation functions
     response1 = get_recommendations2(get_request1)
     response2 = recommendations_user(get_request2)
     response3 = get_recommendations(get_request3)
 
-    # طباعة الاستجابات للتأكد من محتواها
+    # Print responses for debugging
     print(f"Response 1: {response1.content if isinstance(response1, JsonResponse) else 'Not JsonResponse'}")
     print(f"Response 2: {response2.content if isinstance(response2, JsonResponse) else 'Not JsonResponse'}")
     print(f"Response 3: {response3.content if isinstance(response3, JsonResponse) else 'Not JsonResponse'}")
 
     recommendations = []
 
-    # استخراج التوصيات من كل استجابة
+    # Collect recommendations from each response
     if isinstance(response1, JsonResponse):
         recommendations += json.loads(response1.content).get("recommendations", [])
     
@@ -807,13 +809,7 @@ def recommendations_combined(request):
     if isinstance(response3, JsonResponse):
         recommendations += json.loads(response3.content).get("recommendations", [])
 
-    # طباعة التوصيات المجمعة قبل إزالة التكرارات
-    print(f"Recommendations before deduplication: {recommendations}")
+    # Print recommendations for debugging
+    print(f"Recommendations: {recommendations}")
 
-    # إزالة التكرارات باستخدام frozenset
-    unique_recommendations = list({frozenset(item.items()): item for item in recommendations}.values())
-
-    # طباعة التوصيات بعد إزالة التكرارات
-    print(f"Unique recommendations: {unique_recommendations}")
-
-    return JsonResponse({"recommendations": unique_recommendations})
+    return JsonResponse({"recommendations": recommendations})
