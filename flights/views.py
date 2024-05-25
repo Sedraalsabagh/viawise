@@ -234,8 +234,8 @@ def flights_with_offers1(request):
      
 
 
-cred = credentials.Certificate(r"C:\Users\Lenovo\OneDrive\Desktop\fcm4flutter-57cd2-firebase-adminsdk-nvrod-0c1c9a25e9.json"
-)
+#cred = credentials.Certificate(r"C:\Users\Lenovo\OneDrive\Desktop\fcm4flutter-57cd2-firebase-adminsdk-nvrod-0c1c9a25e9.json"
+#)
 
 firebase_admin.initialize_app(cred)
         
