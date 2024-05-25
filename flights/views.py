@@ -196,7 +196,7 @@ def flight_explor(request):
         return Response(serializer.data) 
     
 @api_view(['GET'])
-def flights_with_offers1(request):
+def flights_with_offers(request):
    
     current_datetime = timezone.now()
 
