@@ -774,7 +774,6 @@ def get_recommendations(request):#true
 
 
 
-
 import requests
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -783,26 +782,20 @@ from django.http import JsonResponse
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def recommendations_combined(request):
-    user = request.user
+    token = request.META.get('HTTP_AUTHORIZATION', '').split(' ')[1]  # استخراج التوكن من رأس المصادقة
 
-
-    response1 = requests.get('https://viawise.onrender.com/flight/get_recommendations/', headers={'Authorization': f'Token {user.auth_token.key}'})
-    response2 = requests.get('https://viawise.onrender.com/flight/get_recommendations2/', headers={'Authorization': f'Token {user.auth_token.key}'})
-    response3 = requests.get('https://viawise.onrender.com/flight/recommendations_user/', headers={'Authorization': f'Token {user.auth_token.key}'})
-
+    response1 = requests.get('https://viawise.onrender.com/flight/get_recommendations/', headers={'Authorization': f'Bearer {token}'})
+    response2 = requests.get('https://viawise.onrender.com/flight/get_recommendations2/', headers={'Authorization': f'Bearer {token}'})
+    response3 = requests.get('https://viawise.onrender.com/flight/recommendations_user/', headers={'Authorization': f'Bearer {token}'})
 
     if response1.status_code == 200 and response2.status_code == 200 and response3.status_code == 200:
         recommendations1 = response1.json().get('recommendations', [])
         recommendations2 = response2.json().get('recommendations', [])
         recommendations3 = response3.json().get('recommendations', [])
 
-
         combined_recommendations = recommendations1 + recommendations2 + recommendations3
-
 
         return JsonResponse({"recommendations": combined_recommendations})
 
     else:
-
         return JsonResponse({"error": "Failed to fetch recommendations from one or more sources"}, status=500)
-
