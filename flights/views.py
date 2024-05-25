@@ -761,7 +761,6 @@ def get_recommendations(request):#true
     return JsonResponse({"recommendations": recommended_flights})
 
 
-
 import json
 from django.http import HttpRequest, JsonResponse
 from rest_framework.decorators import api_view, permission_classes
@@ -791,6 +790,11 @@ def recommendations_combined(request):
     response2 = recommendations_user(get_request2)
     response3 = get_recommendations(get_request3)
 
+    # طباعة الاستجابات للتأكد من محتواها
+    print(f"Response 1: {response1.content if isinstance(response1, JsonResponse) else 'Not JsonResponse'}")
+    print(f"Response 2: {response2.content if isinstance(response2, JsonResponse) else 'Not JsonResponse'}")
+    print(f"Response 3: {response3.content if isinstance(response3, JsonResponse) else 'Not JsonResponse'}")
+
     recommendations = []
 
     # استخراج التوصيات من كل استجابة
@@ -803,7 +807,13 @@ def recommendations_combined(request):
     if isinstance(response3, JsonResponse):
         recommendations += json.loads(response3.content).get("recommendations", [])
 
+    # طباعة التوصيات المجمعة قبل إزالة التكرارات
+    print(f"Recommendations before deduplication: {recommendations}")
+
     # إزالة التكرارات باستخدام frozenset
     unique_recommendations = list({frozenset(item.items()): item for item in recommendations}.values())
+
+    # طباعة التوصيات بعد إزالة التكرارات
+    print(f"Unique recommendations: {unique_recommendations}")
 
     return JsonResponse({"recommendations": unique_recommendations})
