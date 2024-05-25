@@ -863,14 +863,33 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
 
+
+
+from rest_framework.request import Request as DRFRequest
+from django.http import HttpRequest
+
+def convert_to_django_request(request):
+    if isinstance(request, DRFRequest):
+        django_request = HttpRequest()
+        django_request.method = request.method
+        django_request.path = request.path
+        django_request.body = request.body
+        django_request.GET = request.GET
+        django_request.POST = request.POST
+        django_request.COOKIES = request.COOKIES
+        django_request.META = request.META
+        django_request.user = request.user
+        return django_request
+    return request
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def recommendations_combined(request):
-
-    api1_response = get_recommendations2(request)
-    api2_response = recommendations_user(request)
-    api3_response = get_recommendations(request)
-
+    # تحويل الطلب إلى نوع django.http.HttpRequest
+    django_request = convert_to_django_request(request)
+    
+    api1_response = get_recommendations2(django_request)
+    api2_response = recommendations_user(django_request)
+    api3_response = get_recommendations(django_request)
 
     api1_recommendations = api1_response.data.get('recommendations', [])
     api2_recommendations = api2_response.data.get('recommendations', [])
@@ -878,9 +897,4 @@ def recommendations_combined(request):
 
     all_recommendations = api1_recommendations + api2_recommendations + api3_recommendations
 
-
     return JsonResponse({"recommendations": all_recommendations})
-
-
-
-
