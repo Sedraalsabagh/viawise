@@ -1018,4 +1018,3 @@ def recommendations_combined(request):
         recommendations += json.loads(response3.content).get("recommendations", [])
 
     return JsonResponse({"recommendations": recommendations})
->>
