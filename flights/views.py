@@ -234,7 +234,7 @@ def flights_with_offers1(request):
      
 
 
-#cred = credentials.Certificate(r"C:\Users\admin\OneDrive\Desktop\fcm4flutter-57cd2-firebase-adminsdk-nvrod-0c1c9a25e9.json")
+cred = credentials.Certificate(r"C:\Users\admin\OneDrive\Desktop\fcm4flutter-57cd2-firebase-adminsdk-nvrod-0c1c9a25e9.json")
 
 #firebase_admin.initialize_app(cred)
         
@@ -571,6 +571,25 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from django.http import JsonResponse
+from theaccount.models import UserProfile
+from .models import Review, Flight
+from rest_framework.permissions import IsAuthenticated
+from sklearn.preprocessing import LabelEncoder
+import numpy as np
+import pandas as pd
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from django.http import JsonResponse, HttpRequest
+
+from datetime import datetime, date
+from .models import Flight
+from booking.models import Booking
+import pandas as pd
+import numpy as np 
+
 def jaccard_distance_weighted(u, v, weights=None):
     if weights is None:
         weights = np.ones(len(u))
@@ -680,15 +699,7 @@ def get_recommendations2(request):
 
 
 #user user 
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from django.http import JsonResponse
-from theaccount.models import UserProfile
-from .models import Review, Flight
-from rest_framework.permissions import IsAuthenticated
-from sklearn.preprocessing import LabelEncoder
-import numpy as np
-import pandas as pd
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -769,15 +780,7 @@ def recommendations_user(request):#true
 
 
 #Recommendation2
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from django.http import JsonResponse, HttpRequest
 
-from datetime import datetime, date
-from .models import Flight
-from booking.models import Booking
-import pandas as pd
-import numpy as np
 
 def jaccard_distance_weighted(u, v, weights=None):
     if weights is None:
