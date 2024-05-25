@@ -23,6 +23,8 @@ from django.core.mail import send_mail
 #from firebase_admin import auth
 
 #from firebase_admin import credentials
+import firebase_admin
+from firebase_admin import messaging
 '''
 cred = credentials.Certificate("C:/Users/Lenovo/OneDrive/Desktop/djangopushnotification-fa91d-ac5e97f45f44.json")
 firebase_admin.initialize_app(cred)
@@ -257,3 +259,6 @@ def user_profile(request):
     
     else:
         return Response("Method not allowed", status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    
+    
+    

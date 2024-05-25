@@ -87,6 +87,9 @@ SOCIALACCOUNT_PROVIDERS = {
 '''
 AUTH_USER_MODEL ='theaccount.User'
 
+FCM_API_KEY = 'AIzaSyDqliqOyzt1MF0Kqjrr2DyZJldcRddrsyg'
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
