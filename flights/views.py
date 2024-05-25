@@ -765,7 +765,6 @@ def get_recommendations(request):#true
 
 
 
-
 import json
 from django.http import HttpRequest, JsonResponse
 from rest_framework.decorators import api_view, permission_classes
@@ -775,10 +774,16 @@ from .views import get_recommendations2, recommendations_user, get_recommendatio
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def recommendations_combined(request):
-    # Call the recommendation functions
-    response1 = get_recommendations2(request)
-    response2 = recommendations_user(request)
-    response3 = get_recommendations(request)
+    # Create HttpRequest objects for each of the recommendation functions
+    http_request = HttpRequest()
+    http_request.method = 'GET'
+    http_request.GET = request.GET
+    http_request.META = request.META
+
+    # Call the recommendation functions with the created HttpRequest objects
+    response1 = get_recommendations2(http_request)
+    response2 = recommendations_user(http_request)
+    response3 = get_recommendations(http_request)
 
     # Collect recommendations from each response
     recommendations = []
