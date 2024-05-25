@@ -196,7 +196,7 @@ def flight_explor(request):
         return Response(serializer.data) 
     
 @api_view(['GET'])
-def flights_with_offers(request):
+def flights_with_offers1(request):
    
     current_datetime = timezone.now()
 
@@ -251,7 +251,7 @@ def send_push_notification(token, title, body):
         return {'status': 'error', 'error': str(e)}                
 
     return Response(flights_data)
-result = send_push_notification("ftmGf_xeSS23JuN0AKGcTB:APA91bFGPgf00v4BgXFj41qqJz60Qp6p_1NK0qRCnfIyY55JIWc0h-C0dLu5HmEr1INvHEcBqi3ELhCNgD6nktB9Xso07gk0a3uNUSR4ewNcm6IvOAmq6wS0Nz0pV99gUBgnebEgT_Vr", "عنوان الإشعار", "نص الإشعار")
+result = send_push_notification("ftmGf_xeSS23JuN0AKGcTB:APA91bFGPgf00v4BgXFj41qqJz60Qp6p_1NK0qRCnfIyY55JIWc0h-C0dLu5HmEr1INvHEcBqi3ELhCNgD6nktB9Xso07gk0a3uNUSR4ewNcm6IvOAmq6wS0Nz0pV99gUBgnebEgT_Vr", "لانا الجدبةر", "نص الإشعار")
 print(result)
 
 
