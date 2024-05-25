@@ -771,34 +771,27 @@ def get_recommendations(request):#true
 
 
 
-
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def recommendations_combined(request):
-  user = request.user
 
-  # Extract user preferences (combine logic from all APIs)
-  preferences = get_user_preferences(request)
+    api1_response = get_recommendations2(request)
+    api2_response = recommendations_user(request)
+    api3_response = get_recommendations(request)
 
-  # Filter flights based on user preferences
-  filtered_flights = filter_flights(preferences)
 
-  # Calculate similarity scores for each API
-  similarity_scores_api1 = get_recommendations2(filtered_flights, user)
-  similarity_scores_api2 = recommendations_user(filtered_flights, user)
-  similarity_scores_api3 = get_recommendations(filtered_flights, user)  # Assuming reviews exist
+    api1_recommendations = api1_response.data.get('recommendations', [])
+    api2_recommendations = api2_response.data.get('recommendations', [])
+    api3_recommendations = api3_response.data.get('recommendations', [])
 
-  # Combine similarity scores (weighted average or other strategy)
-  combined_similarity_scores = combine_similarity_scores(similarity_scores_api1, similarity_scores_api2, similarity_scores_api3)
+    all_recommendations = api1_recommendations + api2_recommendations + api3_recommendations
 
-  # Select top N flights based on combined similarity scores
-  top_recommendations = select_top_flights(filtered_flights, combined_similarity_scores, N)
 
-  return JsonResponse({"recommendations": top_recommendations})
-
-# Separate functions for user preferences, filtering, similarity calculations, and combining scores
+    return JsonResponse({"recommendations": all_recommendations})
 
 
 
