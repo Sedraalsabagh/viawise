@@ -486,7 +486,7 @@ def jaccard_distance_weighted(u, v, weights=None):
     union = np.maximum(u, v)
     return 1.0 - (np.dot(weights, intersection) / np.dot(weights, union))
 
-@api_view(['POST'])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_recommendations2(request):
     user = request.user
@@ -762,30 +762,38 @@ def get_recommendations(request):#true
 
 
 
-
 import json
 from django.http import HttpRequest, JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from .views import get_recommendations2, recommendations_user, get_recommendations
 
-@api_view(['POST'])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def recommendations_combined(request):
-    # Create a Django request object to pass to the functions
-    django_request = HttpRequest()
-    django_request.user = request.user
-    django_request.method = 'POST'
-    django_request._body = json.dumps(request.data).encode('utf-8')  # Pass the request data
+    # إعداد طلب GET مع تمرير المعلمات من الطلب الأصلي
+    get_request1 = HttpRequest()
+    get_request1.user = request.user
+    get_request1.method = 'GET'
+    get_request1.GET = request.GET
 
-    # Call the three recommendation functions
-    response1 = get_recommendations2(django_request)
-    response2 = recommendations_user(django_request)
-    response3 = get_recommendations(django_request)
+    # إعداد طلب GET للدوال الأخرى
+    get_request2 = HttpRequest()
+    get_request2.user = request.user
+    get_request2.method = 'GET'
+    
+    get_request3 = HttpRequest()
+    get_request3.user = request.user
+    get_request3.method = 'GET'
+
+    # استدعاء الدوال الثلاثة
+    response1 = get_recommendations2(get_request1)
+    response2 = recommendations_user(get_request2)
+    response3 = get_recommendations(get_request3)
 
     recommendations = []
 
-    # Extract recommendations from each response
+    # استخراج التوصيات من كل استجابة
     if isinstance(response1, JsonResponse):
         recommendations += json.loads(response1.content).get("recommendations", [])
     
@@ -795,7 +803,7 @@ def recommendations_combined(request):
     if isinstance(response3, JsonResponse):
         recommendations += json.loads(response3.content).get("recommendations", [])
 
-    # Remove duplicates by using frozenset for the dictionary items
+    # إزالة التكرارات باستخدام frozenset
     unique_recommendations = list({frozenset(item.items()): item for item in recommendations}.values())
 
     return JsonResponse({"recommendations": unique_recommendations})
