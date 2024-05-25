@@ -763,6 +763,9 @@ def get_recommendations(request):#true
 
 
 
+
+
+
 import json
 from django.http import HttpRequest, JsonResponse
 from rest_framework.decorators import api_view, permission_classes
@@ -772,48 +775,22 @@ from .views import get_recommendations2, recommendations_user, get_recommendatio
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def recommendations_combined(request):
-    # Create a HttpRequest for each of the recommendation functions
-    get_request1 = HttpRequest()
-    get_request1.user = request.user
-    get_request1.method = 'GET'
-    get_request1.GET = request.GET
-    get_request1.META = request.META  # Add this line
-
-    get_request2 = HttpRequest()
-    get_request2.user = request.user
-    get_request2.method = 'GET'
-    get_request2.GET = request.GET
-    get_request2.META = request.META  # Add this line
-
-    get_request3 = HttpRequest()
-    get_request3.user = request.user
-    get_request3.method = 'GET'
-    get_request3.GET = request.GET
-    get_request3.META = request.META  # Add this line
-
     # Call the recommendation functions
-    response1 = get_recommendations2(get_request1)
-    response2 = recommendations_user(get_request2)
-    response3 = get_recommendations(get_request3)
-
-    # Print responses for debugging
-    print(f"Response 1: {response1.content if isinstance(response1, JsonResponse) else 'Not JsonResponse'}")
-    print(f"Response 2: {response2.content if isinstance(response2, JsonResponse) else 'Not JsonResponse'}")
-    print(f"Response 3: {response3.content if isinstance(response3, JsonResponse) else 'Not JsonResponse'}")
-
-    recommendations = []
+    response1 = get_recommendations2(request)
+    response2 = recommendations_user(request)
+    response3 = get_recommendations(request)
 
     # Collect recommendations from each response
+    recommendations = []
+
     if isinstance(response1, JsonResponse):
-        recommendations += json.loads(response1.content.decode('utf-8')).get("recommendations", [])
+        recommendations += json.loads(response1.content).get("recommendations", [])
     
     if isinstance(response2, JsonResponse):
-        recommendations += json.loads(response2.content.decode('utf-8')).get("recommendations", [])
+        recommendations += json.loads(response2.content).get("recommendations", [])
     
     if isinstance(response3, JsonResponse):
-        recommendations += json.loads(response3.content.decode('utf-8')).get("recommendations", [])
+        recommendations += json.loads(response3.content).get("recommendations", [])
 
-    # Print recommendations for debugging
-    print(f"Recommendations: {recommendations}")
-
+    # Return combined recommendations
     return JsonResponse({"recommendations": recommendations})
