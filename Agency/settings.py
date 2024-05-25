@@ -142,12 +142,16 @@ DATABASES = {
 
 
 
+
+
 DATABASES  = {
             'default':dj_database_url.parse('postgres://viawise_user:zKrBtWRSpsXKzM8KsGwfsdmB8GeXPSBN@dpg-covno47jbltc73dh8jn0-a.oregon-postgres.render.com/viawise')  
               }
 
  
- 
+
+
+
  
  
  
