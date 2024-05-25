@@ -3,8 +3,6 @@ from . import views
 from .views import FlightListView,SeedDatabaseAPIView
 #from .exploer import explore_destination
 
-
-
 urlpatterns = [
     path('flight/',views.get_all_flights,name='flight'),
     path('flight/<str:pk>/',views.get_by_id_flights, name='get_by_id_flights'),
@@ -17,17 +15,12 @@ urlpatterns = [
     path('search1/',views.get_all,name='on_way'),
     path('search2/',views.get_all2,name='Rund Trip'),
     path('flights/',views.get_all_flights,name='flight'),
-    #path('recommendations1/', views.get_recommendations_user, name='get_recommendations_user'),
     path('get_recommendations/', views.get_recommendations, name='get_recommendations'),
-    #path('recommend-flights/', RecommendFlightsAPIView.as_view(), name='recommend-flights'),
     path('get_recommendations2/', views.get_recommendations2, name='get_recommendations2'),
     path('recommendations_user/', views.recommendations_user, name='recommendations_user'),
     #path('explore/',explore_destination, name='explore_destination'),
     path('similar_flights/<int:booking_id>/', views.similar_flights, name='similar_flights'),
     path('recommendations_combined/', views.recommendations_combined, name='recommendations_combined'),
-
-
-    
              ]
 
 
