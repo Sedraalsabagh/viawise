@@ -762,32 +762,40 @@ def get_recommendations(request):#true
 
 
 
+
 import json
 from django.http import HttpRequest, JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from .views import recommendations_user, get_recommendations
+from .views import get_recommendations2, recommendations_user, get_recommendations
 
-@api_view(['GET'])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def recommendations_combined(request):
+    # Create a Django request object to pass to the functions
     django_request = HttpRequest()
     django_request.user = request.user
-    django_request.method = 'GET'
-    
-    user_response = recommendations_user(django_request)
-    flight_response = get_recommendations(django_request)
+    django_request.method = 'POST'
+    django_request._body = json.dumps(request.data).encode('utf-8')  # Pass the request data
 
-    user_recommendations = []
-    flight_recommendations = []
-    
-    if isinstance(user_response, JsonResponse):
-        user_recommendations = json.loads(user_response.content).get("recommendations", [])
-    
-    if isinstance(flight_response, JsonResponse):
-        flight_recommendations = json.loads(flight_response.content).get("recommendations", [])
+    # Call the three recommendation functions
+    response1 = get_recommendations2(django_request)
+    response2 = recommendations_user(django_request)
+    response3 = get_recommendations(django_request)
 
-    combined_recommendations = {frozenset(item.items()): item for item in user_recommendations + flight_recommendations}
-    unique_recommendations = list(combined_recommendations.values())
+    recommendations = []
+
+    # Extract recommendations from each response
+    if isinstance(response1, JsonResponse):
+        recommendations += json.loads(response1.content).get("recommendations", [])
+    
+    if isinstance(response2, JsonResponse):
+        recommendations += json.loads(response2.content).get("recommendations", [])
+    
+    if isinstance(response3, JsonResponse):
+        recommendations += json.loads(response3.content).get("recommendations", [])
+
+    # Remove duplicates by using frozenset for the dictionary items
+    unique_recommendations = list({frozenset(item.items()): item for item in recommendations}.values())
 
     return JsonResponse({"recommendations": unique_recommendations})
