@@ -258,8 +258,8 @@ def flights_with_offers1(request):
 
 #############
 
-
-@api_view(['GET'])
+"""
+@api_view(['GET']) 
 def flights_with_offers(request):
     current_datetime = timezone.now()
 
@@ -299,7 +299,7 @@ def flights_with_offers(request):
 
     return Response(flights_data)
 
-
+"""
 
 
 
