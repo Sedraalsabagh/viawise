@@ -773,33 +773,29 @@ def get_recommendations(request):#true
 
 
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
+
 import requests
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from django.http import JsonResponse
 
-class RecommendationsCombined(APIView):
-    permission_classes = [IsAuthenticated]
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def recommendations_combined(request):
+    token = request.META.get('HTTP_AUTHORIZATION', '').split(' ')[1]  # استخراج التوكن من رأس المصادقة
 
-    def get(self, request, format=None):
-        token = request.META.get('HTTP_AUTHORIZATION', '').split(' ')[1]
+    response1 = requests.get('https://viawise.onrender.com/flight/get_recommendations/', headers={'Authorization': f'Bearer {token}'})
+    response2 = requests.get('https://viawise.onrender.com/flight/get_recommendations2/', headers={'Authorization': f'Bearer {token}'})
+    response3 = requests.get('https://viawise.onrender.com/flight/recommendations_user/', headers={'Authorization': f'Bearer {token}'})
 
-        try:
-            response1 = requests.get('https://viawise.onrender.com/flight/get_recommendations/', headers={'Authorization': f'Bearer {token}'})
-            response2 = requests.get('https://viawise.onrender.com/flight/get_recommendations2/', headers={'Authorization': f'Bearer {token}'})
-            response3 = requests.get('https://viawise.onrender.com/flight/recommendations_user/', headers={'Authorization': f'Bearer {token}'})
+    if response1.status_code == 200 and response2.status_code == 200 and response3.status_code == 200:
+        recommendations1 = response1.json().get('recommendations', [])
+        recommendations2 = response2.json().get('recommendations', [])
+        recommendations3 = response3.json().get('recommendations', [])
 
-            if response1.status_code == 200 and response2.status_code == 200 and response3.status_code == 200:
-                recommendations1 = response1.json().get('recommendations', [])
-                recommendations2 = response2.json().get('recommendations', [])
-                recommendations3 = response3.json().get('recommendations', [])
+        combined_recommendations = recommendations1 + recommendations2 + recommendations3
 
-                combined_recommendations = recommendations1 + recommendations2 + recommendations3
+        return JsonResponse({"recommendations": combined_recommendations})
 
-                return Response({"recommendations": combined_recommendations})
-
-            else:
-                return Response({"error": "Failed to fetch recommendations from one or more sources"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return JsonResponse({"error": "Failed to fetch recommendations from one or more sources"}, status=500)
