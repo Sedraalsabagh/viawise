@@ -613,7 +613,6 @@ from rest_framework.response import Response
 from django.http import JsonResponse
 from datetime import datetime
 from .models import Flight,Review
-from theaccount import UserProfile
 from booking.models import Booking
 import pandas as pd
 import numpy as np
