@@ -135,7 +135,7 @@ class FlightSerializerT(serializers.ModelSerializer):
     Airplane = AirplaneSerializerT()
     class Meta:
         model = Flight
-        fields = ['departure_date', 'departure_city','passenger','destination_city', 'airportDeparture', 'airportArrival', 'Airplane','duration']
+        fields = ['departure_date', 'departure_city','destination_city', 'airportDeparture', 'airportArrival', 'Airplane','duration']
 
 class BookingSerializerT(serializers.ModelSerializer):
     outbound_flight = FlightSerializerT()
@@ -143,7 +143,7 @@ class BookingSerializerT(serializers.ModelSerializer):
     passenger = PassengerSerializerT()
     class Meta:
         model = Booking
-        fields = ['id', 'outbound_flight', 'return_flight', 'passenger_class', 'trip_type', 'status', 'total_cost', 'creation_time']
+        fields = ['id', 'outbound_flight', 'return_flight','passenger','passenger_class', 'trip_type', 'status', 'total_cost', 'creation_time']
 
 
  
