@@ -932,7 +932,7 @@ def get_recommendations1(user, data):
     climate_preference = data.get('preferred_climate', '').capitalize().strip()
     type_preference = data.get('travel_goal', '').capitalize().strip()
 
-    # Fetch flight data and filter by user's current city
+
     flights = Flight.objects.filter(departure_city__iexact=user_current_city).values('id', 'price_flight', 'departure_city', 'destination_city', 'destination_activity', 'destination_climate', 'destination_type', 'departure_date')
     flights_df = pd.DataFrame(flights)
     flights_df['price_flight'] = flights_df['price_flight'].astype(float)
@@ -973,7 +973,7 @@ def get_recommendations1(user, data):
             similarity_matrix[i, j] = jaccard_distance_weighted(flights_features_array[i], flights_features_array[j], weights_array)
             similarity_matrix[j, i] = similarity_matrix[i, j]
 
-    # Calculate user similarity
+
     user_preferences = pd.DataFrame({
         'price_flight': [price_preference],
         'destination_activity_' + activity_preference.lower(): [1],
@@ -983,10 +983,10 @@ def get_recommendations1(user, data):
     merged_data = pd.concat([flights_features_encoded, user_preferences], ignore_index=True).fillna(0)
     user_similarity = cosine_similarity(merged_data)[-1][:-1]
 
-    # Top similar flights
+
     top_similar_flights_indices = user_similarity.argsort()[::-1][:4]
 
-    # Get recommended flights
+
     recommended_flights = []
     for idx in top_similar_flights_indices:
         flight_data = flights_df.iloc[idx].to_dict()
