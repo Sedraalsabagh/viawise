@@ -1004,22 +1004,22 @@ def get_recommendations1(user, data):
 
 
 
-
 def get_recommendations2(user, data):
     # Implementation of the second recommendation logic
     bookings = Booking.objects.filter(user=user, outbound_flight__isnull=False).values('outbound_flight')
     outbound_flights = [booking['outbound_flight'] for booking in bookings]
 
-    flights = Flight.objects.all().values('id', 'price_flight', 'departure_city', 'destination_activity', 'destination_climate', 'destination_type', 'departure_date')
+    flights = Flight.objects.all().values('id', 'price_flight', 'departure_city', 'destination_city', 'destination_activity', 'destination_climate', 'destination_type', 'departure_date')
     flights_df = pd.DataFrame(flights)
     flights_df['price_flight'] = flights_df['price_flight'].astype(float)
 
     flights_df['departure_city'] = flights_df['departure_city'].str.capitalize()
+    flights_df['destination_city'] = flights_df['destination_city'].str.capitalize()
     flights_df['destination_activity'] = flights_df['destination_activity'].str.capitalize()
     flights_df['destination_climate'] = flights_df['destination_climate'].str.capitalize()
     flights_df['destination_type'] = flights_df['destination_type'].str.capitalize()
 
-    features = ['price_flight', 'destination_activity', 'destination_climate', 'destination_type', 'departure_city']
+    features = ['price_flight', 'destination_activity', 'destination_climate', 'destination_type', 'departure_city', 'destination_city']
     flights_features_encoded = pd.get_dummies(flights_df[features])
 
     all_columns = flights_features_encoded.columns
@@ -1064,7 +1064,7 @@ def get_recommendations2(user, data):
 
     return recommended_flights
 
-
+    
 
 
 def recommendations_user(user):
