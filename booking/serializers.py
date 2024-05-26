@@ -180,7 +180,7 @@ class PrivateSerializer2(serializers.ModelSerializer):
 class FlightSerializer100(serializers.ModelSerializer):
     class Meta:
         model = Flight
-        fields = ['airportDeparture', 'airportArrival','departure_date']
+        fields = ['airportDeparture', 'airportArrival','departure_date','duration']
 
 class PassengerSerializer100(serializers.ModelSerializer):
     class Meta:
