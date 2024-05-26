@@ -332,6 +332,8 @@ def flight_details1(request, flight_id):
 
     serializer = FlightProfileSerializer(flight)
     return Response(serializer.data)
+
+'''
 @api_view(['GET'])
 def flight_details(request, flight_id1, flight_id2):
     try:
@@ -343,6 +345,42 @@ def flight_details(request, flight_id1, flight_id2):
     serializer1 = FlightProfileSerializer(flight1)
     serializer2 = FlightProfileSerializer(flight2)
     return Response({"flight1": serializer1.data, "flight2": serializer2.data})
+'''
+@api_view(['GET'])
+def flight_details(request, flight_id1, flight_id2):
+    try:
+        flight1 = Flight.objects.get(id=flight_id1)
+        flight2 = Flight.objects.get(id=flight_id2)
+    except Flight.DoesNotExist:
+        return Response(status=404)
+
+    # إنشاء JSON جديد يحتوي على معلومات الرحلتين المدمجة
+    data = {
+        "outbound_flight_id": flight1.id,
+        "notes_outbound": flight1.notes,
+        "ratings_outbound": flight1.ratings,
+        "departure_date_outbound": flight1.departure_date,
+        "airportDeparture_outbound": flight1.airportDeparture,
+        "airportArrival_outbound": flight1.airportArrival,
+        "departure_city_outbound": flight1.departure_city,
+        "destination_city_outbound": flight1.destination_city,
+        "departure_country_outbound": flight1.departure_country,
+        "destination_country_outbound": flight1.destination_country,
+        "price_flight_outbound": float(flight1.price_flight),
+        "return_id": flight2.id,
+        "notes_return": flight2.notes,
+        "ratings_return": flight2.ratings,
+        "departure_date_return": flight2.departure_date,
+        "airportDeparture_return": flight2.airportDeparture,
+        "airportArrival_return": flight2.airportArrival,
+        "departure_city_return": flight2.departure_city,
+        "destination_city_return": flight2.destination_city,
+        "departure_country_return": flight2.departure_country,
+        "destination_country_return": flight2.destination_country,
+        "price_flight_return": float(flight2.price_flight)
+    }
+
+    return Response(data)
 
 
 
