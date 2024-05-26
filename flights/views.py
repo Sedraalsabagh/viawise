@@ -969,14 +969,14 @@ def get_recommendations1(user, data):
         'destination_type': 3
     }
 
-    # Calculate weighted similarity matrix
+
     flights_features_encoded = pd.get_dummies(flights_df[features])
     flights_features_array = flights_features_encoded.values
 
-    # Adjust weights to match the number of features
+
     weights_array = np.ones(flights_features_array.shape[1])
 
-    # Calculate similarity matrix
+
     similarity_matrix = np.zeros((len(flights_features_array), len(flights_features_array)))
     for i in range(len(flights_features_array)):
         for j in range(i, len(flights_features_array)):
@@ -1071,11 +1071,11 @@ def get_recommendations2(user, data):
 
     return recommended_flights
 
-    
+
 
 
 def recommendations_user(user):
-    # Implementation of the third recommendation logic
+
     user_id = user.id
     if user_id is not None:
         users_data = UserProfile.objects.all().values()
