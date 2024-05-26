@@ -902,6 +902,8 @@ import pandas as pd
 from booking.models import Booking
 from datetime import datetime, date
 
+
+
 def jaccard_distance_weighted(u, v, weights=None):
     if weights is None:
         weights = np.ones(len(u))
@@ -909,11 +911,15 @@ def jaccard_distance_weighted(u, v, weights=None):
     union = np.maximum(u, v)
     return 1.0 - (np.dot(weights, intersection) / np.dot(weights, union))
 
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def combined_recommendations(request):
     user = request.user
     data = request.data
+
+
 
     recommendations = {
         "recommendations1": get_recommendations1(user, data),
@@ -921,11 +927,15 @@ def combined_recommendations(request):
         "recommendations3": recommendations_user(user)
     }
 
+
     return JsonResponse(recommendations)
 
+
+
+
+
 def get_recommendations1(user, data):
-    # Implementation of the first recommendation logic
-    # Extract user preferences from request data
+
     user_current_city = data.get('current_city', '').capitalize().strip()
     price_preference = float(data.get('budget', 0))
     activity_preference = data.get('preferred_activity', '').capitalize().strip()
@@ -937,36 +947,36 @@ def get_recommendations1(user, data):
     flights_df = pd.DataFrame(flights)
     flights_df['price_flight'] = flights_df['price_flight'].astype(float)
 
-    # Convert departure_date to datetime
+
     flights_df['departure_date'] = pd.to_datetime(flights_df['departure_date'])
 
-    # Filter out past flights
+
     current_time = datetime.now()
     flights_df = flights_df[flights_df['departure_date'] >= current_time]
 
-    # Preprocess flight data
+
     flights_df['departure_city'] = flights_df['departure_city'].str.capitalize()
     flights_df['destination_activity'] = flights_df['destination_activity'].str.capitalize()
     flights_df['destination_climate'] = flights_df['destination_climate'].str.capitalize()
     flights_df['destination_type'] = flights_df['destination_type'].str.capitalize()
 
-    # Define feature weights
+
     features = ['price_flight', 'destination_activity', 'destination_climate', 'destination_type']
     weights = {
         'price_flight': 3,
-        'destination_activity': 2,
-        'destination_climate': 3,
-        'destination_type': 2
+        'destination_activity':4,
+        'destination_climate': 5,
+        'destination_type': 3
     }
 
-    # Calculate weighted similarity matrix
+
     flights_features_encoded = pd.get_dummies(flights_df[features])
     flights_features_array = flights_features_encoded.values
 
-    # Adjust weights to match the number of features
+
     weights_array = np.ones(flights_features_array.shape[1])
 
-    # Calculate similarity matrix
+
     similarity_matrix = np.zeros((len(flights_features_array), len(flights_features_array)))
     for i in range(len(flights_features_array)):
         for j in range(i, len(flights_features_array)):
@@ -996,21 +1006,27 @@ def get_recommendations1(user, data):
 
     return recommended_flights
 
+
+
+
+
+
 def get_recommendations2(user, data):
     # Implementation of the second recommendation logic
     bookings = Booking.objects.filter(user=user, outbound_flight__isnull=False).values('outbound_flight')
     outbound_flights = [booking['outbound_flight'] for booking in bookings]
 
-    flights = Flight.objects.all().values('id', 'price_flight', 'departure_city', 'destination_activity', 'destination_climate', 'destination_type', 'departure_date')
+    flights = Flight.objects.all().values('id', 'price_flight', 'departure_city', 'destination_city', 'destination_activity', 'destination_climate', 'destination_type', 'departure_date')
     flights_df = pd.DataFrame(flights)
     flights_df['price_flight'] = flights_df['price_flight'].astype(float)
 
     flights_df['departure_city'] = flights_df['departure_city'].str.capitalize()
+    flights_df['destination_city'] = flights_df['destination_city'].str.capitalize()
     flights_df['destination_activity'] = flights_df['destination_activity'].str.capitalize()
     flights_df['destination_climate'] = flights_df['destination_climate'].str.capitalize()
     flights_df['destination_type'] = flights_df['destination_type'].str.capitalize()
 
-    features = ['price_flight', 'destination_activity', 'destination_climate', 'destination_type', 'departure_city']
+    features = ['price_flight', 'destination_activity', 'destination_climate', 'destination_type', 'departure_city', 'destination_city']
     flights_features_encoded = pd.get_dummies(flights_df[features])
 
     all_columns = flights_features_encoded.columns
@@ -1055,8 +1071,11 @@ def get_recommendations2(user, data):
 
     return recommended_flights
 
+
+
+
 def recommendations_user(user):
-    # Implementation of the third recommendation logic
+
     user_id = user.id
     if user_id is not None:
         users_data = UserProfile.objects.all().values()
@@ -1108,7 +1127,7 @@ def recommendations_user(user):
 
             if 'flight_id' in similar_user_reviews.columns:
                 similar_user_reviews = similar_user_reviews.dropna(subset=['flight_id'])
-                recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 3]['flight_id'].dropna().tolist())
+                recommended_flights.extend(similar_user_reviews[similar_user_reviews['ratings'] >= 4]['flight_id'].dropna().tolist())
 
         if len(recommended_flights) == 0:
             return []
