@@ -896,3 +896,95 @@ def booking_details(request, id_booking):
 
     serializer = BookingSerializer100(booking)
     return Response(serializer.data)
+
+
+
+
+def calculate_discounted_price(flight, offer):
+    """
+    Calculate the price after applying discount if there is an active offer.
+    """
+    original_price = flight.price_flight
+    if offer:
+        discount = original_price * (offer.discount_percentage / 100)
+        return original_price - discount
+    return original_price
+
+
+
+@api_view(['POST'])
+def make_booking(request):
+    if request.method == 'POST':
+        user_id = request.user.id  
+
+        booking_data = request.data
+        passengers_data = booking_data.pop('passenger', [])
+
+        if not passengers_data:
+            return Response({'message': 'Passenger data is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        outbound_flight_id = booking_data.get('outbound_flight')
+        return_flight_id = booking_data.get('return_flight')
+
+        if outbound_flight_id == return_flight_id:
+            return Response({'message': 'Outbound and return flights cannot be the same'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            outbound_flight = Flight.objects.get(id=outbound_flight_id)
+            return_flight = Flight.objects.get(id=return_flight_id) if return_flight_id else None
+        except Flight.DoesNotExist:
+            return Response({'message': 'One of the flights does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+        bookings = []
+        for passenger_data in passengers_data:
+            passport_number = passenger_data.get('passport_number')
+            passenger, created = Passenger.objects.get_or_create(
+                passport_number=passport_number,
+                defaults={k: passenger_data[k] for k in ['first_name', 'last_name', 'gender', 'date_of_birth']}
+            )
+
+            if Booking.objects.filter(Passenger=passenger, outbound_flight=outbound_flight, return_flight=return_flight).exists():
+                continue  
+
+            # حساب السعر الأساسي للرحلات
+            outbound_flight_price = outbound_flight.price_flight
+            return_flight_price = 0
+            if return_flight:
+                return_flight_price = return_flight.price_flight
+            
+            # حساب السعر النهائي
+            total_cost = outbound_flight_price + return_flight_price
+            
+            # التحقق من وجود عروض تنطبق على الرحلات
+            outbound_offer = Offer.objects.filter(flight=outbound_flight, start_date__lte=timezone.now(), end_date__gte=timezone.now()).first()
+            return_offer = None
+            if return_flight:
+                return_offer = Offer.objects.filter(flight=return_flight, start_date__lte=timezone.now(), end_date__gte=timezone.now()).first()
+            
+            # إذا وجد عرض، قم بحساب الخصم
+            if outbound_offer:
+                discount = outbound_flight_price * (outbound_offer.discount_percentage / 100)
+                total_cost -= discount
+            
+            if return_offer:
+                discount = return_flight_price * (return_offer.discount_percentage / 100)
+                total_cost -= discount
+
+            # إنشاء الحجز وحفظ القيمة النهائية للسعر في الحجز
+            new_booking = Booking.objects.create(
+                user_id=user_id,
+                Passenger=passenger,
+                outbound_flight=outbound_flight,
+                return_flight=return_flight,
+                passenger_class=booking_data.get('passenger_class'),
+                trip_type=booking_data.get('trip_type'),
+                status='PPD',
+                total_cost=total_cost  # تخزين السعر النهائي هنا
+            )
+            bookings.append(new_booking)
+
+        if not bookings:
+            return Response({'message': 'No bookings were created'}, status=status.HTTP_400_BAD_REQUEST)
+
+        booking_ids = [booking.id for booking in bookings]
+        return Response({'message': f'{len(bookings)} bookings were successfully created', 'booking_ids': booking_ids}, status=status.HTTP_201_CREATED)

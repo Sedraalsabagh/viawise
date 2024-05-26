@@ -6,7 +6,7 @@ from . import views
 urlpatterns = [
 path('all_booking/', views.all_booking, name='all_booking'),    
 path('make_booking/', views.make_booking, name='create_booking'),
-path('modify_booking/<int:booking_id>/', views.modify_booking, name='modify_booking'),
+path('modify_booking/<int:booking_id>', views.modify_booking, name='modify_booking'),
 path('cancel_booking/', views.cancel_booking, name='cancel_booking'),
 path('user-bookings/', UserBookingsAPIView.as_view(), name='user-bookings'),
 path('make_payment/', views.make_payment, name='make_payment'),
