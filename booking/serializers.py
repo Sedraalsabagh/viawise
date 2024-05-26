@@ -119,10 +119,6 @@ class AgencyPolicySerializer(serializers.ModelSerializer):
 
 
 ####################### profile Tickets 
-class PassengerSerializerT(serializers.ModelSerializer):
-    class Meta:
-        model = Passenger
-        fields = ['id', 'first_name', 'last_name', 'gender', 'date_of_birth', 'passport_number']
 
 class AirplaneSerializerT(serializers.ModelSerializer):
     airline_name = serializers.CharField(source='airline.airline_name', read_only=True)
@@ -135,15 +131,20 @@ class FlightSerializerT(serializers.ModelSerializer):
     Airplane = AirplaneSerializerT()
     class Meta:
         model = Flight
-        fields = ['departure_date', 'departure_city','passenger','destination_city', 'airportDeparture', 'airportArrival', 'Airplane','duration']
+        fields = ['departure_date', 'departure_city','destination_city', 'airportDeparture', 'airportArrival', 'Airplane','duration']
+class PassengerSerializerT(serializers.ModelSerializer):
+    class Meta:
+        model = Passenger
+        fields = ['id', 'first_name', 'last_name', 'gender', 'date_of_birth', 'passport_number']
 
 class BookingSerializerT(serializers.ModelSerializer):
+    Passenger = PassengerSerializerT()
     outbound_flight = FlightSerializerT()
     return_flight = FlightSerializerT()
-    passenger = PassengerSerializerT()
+    
     class Meta:
         model = Booking
-        fields = ['id', 'outbound_flight', 'return_flight', 'passenger_class', 'trip_type', 'status', 'total_cost', 'creation_time']
+        fields = ['id', 'outbound_flight', 'return_flight','Passenger','passenger_class', 'trip_type', 'status', 'total_cost', 'creation_time']
 
 
  
