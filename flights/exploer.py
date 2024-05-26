@@ -1,4 +1,4 @@
-'''
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated ,AllowAny
 from rest_framework.response import Response
@@ -82,11 +82,19 @@ def explore_destination(request):
             data['destination_city'] = data['destination_city'].str.lower()
 
             recommendations = recommender_by_description(description, data)
+            recommendations.drop_duplicates(subset=['destination_city'], inplace=True)
             recommendations_list = recommendations.to_dict(orient='records')
+            
+            for recommendation in recommendations_list:
+                recommendation['description'] = description
+
+            
             return Response(recommendations_list)
         else:
             
             return recommend_based_on_ratings()
+        
+        
 
     
     return recommend_based_on_ratings()
@@ -105,4 +113,3 @@ def recommend_based_on_ratings():
     
     return Response(serialized_flights)
 
-'''

@@ -1,7 +1,7 @@
 from django.urls import path,include
 from . import views
 from .views import FlightListView,SeedDatabaseAPIView
-#from .exploer import explore_destination
+from .exploer import explore_destination
 
 urlpatterns = [
     path('flight/',views.get_all_flights,name='flight'),
@@ -19,7 +19,7 @@ urlpatterns = [
    # path('get_recommendations/', views.get_recommendations, name='get_recommendations'),
     #path('get_recommendations2/', views.get_recommendations2, name='get_recommendations2'),
     #path('recommendations_user/', views.recommendations_user, name='recommendations_user'),
-    #path('explore/',explore_destination, name='explore_destination'),
+    path('explore/',explore_destination, name='explore_destination'),
     path('similar_flights/<int:booking_id>/', views.similar_flights, name='similar_flights'),
     path('combined_recommendations/', views.combined_recommendations, name='combined_recommendations'),
              ]
