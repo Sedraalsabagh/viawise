@@ -237,6 +237,67 @@ def make_payment(request):
 
     return Response({"message": "Payment created successfully."}, status=status.HTTP_201_CREATED)
 
+@api_view(['POST'])
+def make_payment(request):
+    booking_ids = request.data.get('booking_ids', [])
+    successful_payments = []
+    errors = []
+
+    for booking_id in booking_ids:
+        try:
+            booking = Booking.objects.get(id=booking_id)
+            user = booking.user
+            total_cost = booking.total_cost
+
+            policy = AgencyPolicy.objects.filter(policy_type='offers').first()
+
+            if not policy:
+                errors.append({"booking_id": booking_id, "message": "No valid policy found."})
+                continue
+
+            if user.balance is None or total_cost is None:
+                errors.append({"booking_id": booking_id, "message": "Invalid account or booking details."})
+                continue
+
+            if user.balance < total_cost:
+                errors.append({"booking_id": booking_id, "message": "Insufficient balance."})
+                continue
+
+            payment = Payment.objects.create(
+                amount=total_cost,
+                booking=booking,
+                user=user
+            )
+
+            user.pointBalance += policy.points_offers
+
+            if user.pointBalance >= policy.points:
+                discount_amount = total_cost * (policy.percentage / 100)
+                user.balance -= discount_amount
+                user.pointBalance -= policy.points
+            else:
+                user.balance -= total_cost
+
+            user.save()
+            booking.status = 'CMP'
+            booking.save()
+
+            successful_payments.append(booking_id)
+
+        except Booking.DoesNotExist:
+            errors.append({"booking_id": booking_id, "message": "Booking does not exist."})
+
+    if successful_payments:
+        message = f"Payment successfully created for booking IDs: {successful_payments}"
+        status_code = status.HTTP_201_CREATED
+    else:
+        message = "No payments were created."
+        status_code = status.HTTP_400_BAD_REQUEST
+
+    return Response({
+        "message": message,
+        "errors": errors
+    }, status=status_code)
 
 
 
@@ -813,7 +874,7 @@ def make_booking(request):
         
         created_booking_ids = [booking.id for booking in bookings]
 
-        return Response({'created_booking_ids': created_booking_ids}, status=status.HTTP_201_CREATED)     
+        return Response({'created_booking_ids': created_booking_ids, 'status': 'PPD'}, status=status.HTTP_201_CREATED)     
     
     
 @api_view(['GET'])
