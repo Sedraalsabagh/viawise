@@ -119,7 +119,7 @@ class AgencyPolicySerializer(serializers.ModelSerializer):
 
 
 ####################### profile Tickets 
-class PassengerSerializer(serializers.ModelSerializer):
+class PassengerSerializerT(serializers.ModelSerializer):
     class Meta:
         model = Passenger
         fields = ['id', 'first_name', 'last_name', 'gender', 'date_of_birth', 'passport_number']
@@ -140,6 +140,7 @@ class FlightSerializerT(serializers.ModelSerializer):
 class BookingSerializerT(serializers.ModelSerializer):
     outbound_flight = FlightSerializerT()
     return_flight = FlightSerializerT()
+    passenger = PassengerSerializerT()
     class Meta:
         model = Booking
         fields = ['id', 'outbound_flight', 'return_flight', 'passenger_class', 'trip_type', 'status', 'total_cost', 'creation_time']
