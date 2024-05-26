@@ -20,7 +20,7 @@ urlpatterns = [
     #path('get_recommendations2/', views.get_recommendations2, name='get_recommendations2'),
     #path('recommendations_user/', views.recommendations_user, name='recommendations_user'),
     path('explore/',explore_destination, name='explore_destination'),
-    path('similar_flights/<int:booking_id>/', views.similar_flights, name='similar_flights'),
+    path('similar_flights/<int:booking_id>', views.similar_flights, name='similar_flights'),
     path('combined_recommendations/', views.combined_recommendations, name='combined_recommendations'),
              ]
 
