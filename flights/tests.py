@@ -5,7 +5,7 @@ from decimal import Decimal
 from datetime import timedelta
 from theaccount.models import User
 from flights.models import Flight, Offer
-from .models import AgencyPolicy, Passenger, Booking, Payment
+from booking.models import AgencyPolicy, Passenger, Booking, Payment
 
 class TestAgencyPolicyModel(TestCase):
 
