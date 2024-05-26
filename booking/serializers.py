@@ -119,6 +119,11 @@ class AgencyPolicySerializer(serializers.ModelSerializer):
 
 
 ####################### profile Tickets 
+class PassengerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Passenger
+        fields = ['id', 'first_name', 'last_name', 'gender', 'date_of_birth', 'passport_number']
+
 class AirplaneSerializerT(serializers.ModelSerializer):
     airline_name = serializers.CharField(source='airline.airline_name', read_only=True)
     
@@ -130,7 +135,7 @@ class FlightSerializerT(serializers.ModelSerializer):
     Airplane = AirplaneSerializerT()
     class Meta:
         model = Flight
-        fields = ['departure_date', 'departure_city', 'destination_city', 'airportDeparture', 'airportArrival', 'Airplane']
+        fields = ['departure_date', 'departure_city','passenger','destination_city', 'airportDeparture', 'airportArrival', 'Airplane','duration']
 
 class BookingSerializerT(serializers.ModelSerializer):
     outbound_flight = FlightSerializerT()
@@ -140,7 +145,7 @@ class BookingSerializerT(serializers.ModelSerializer):
         fields = ['id', 'outbound_flight', 'return_flight', 'passenger_class', 'trip_type', 'status', 'total_cost', 'creation_time']
 
 
-
+ 
 ############## pravetoffers 
 class PriavateSerializer(serializers.ModelSerializer):
     class Meta:
