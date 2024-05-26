@@ -813,7 +813,7 @@ def make_booking(request):
         
         created_booking_ids = [booking.id for booking in bookings]
 
-        return Response({'created_booking_ids': created_booking_ids, 'status': 'PPD'}, status=status.HTTP_201_CREATED)     
+        return Response({'created_booking_ids': created_booking_ids}, status=status.HTTP_201_CREATED)     
     
     
 @api_view(['GET'])
