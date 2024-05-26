@@ -354,7 +354,7 @@ def flight_details(request, flight_id1, flight_id2):
     except Flight.DoesNotExist:
         return Response(status=404)
 
-    # إنشاء JSON جديد يحتوي على معلومات الرحلتين المدمجة
+    
     data = {
         "outbound_flight_id": flight1.id,
         "notes_outbound": flight1.notes,
