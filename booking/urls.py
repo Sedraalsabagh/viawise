@@ -17,7 +17,7 @@ path('AllBookings/', AllBookingsAPIView.as_view(), name='AllBookings'),
 path('booking/', views.booking, name='create_booking'),
 path('privat_offers/', views.get_user_point_balance, name='privatoffers'),
 path('booking_details/<int:id_booking>', views.booking_details),
-
+path('tickets/<int:booking_id>', views.get_Tickets),
 
 
 

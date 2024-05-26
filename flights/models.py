@@ -62,8 +62,7 @@ class Airplane(models.Model):
     airline=models.ForeignKey(Airline, on_delete=models.CASCADE,null=True)
 
     
-    def __str__(self):
-      return self.airplane_name
+   
 
 
 class Flight(models.Model):

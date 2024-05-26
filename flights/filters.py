@@ -164,3 +164,79 @@ class FlightsFilter20(django_filters.FilterSet):
             return combined_flights
         else:
             return queryset.none()
+        
+        
+        
+####################
+class FlightsFilter2(django_filters.FilterSet):
+    departure_airport = django_filters.CharFilter(field_name='airportDeparture', label='Departure Airport', lookup_expr='exact', required=True)
+    arrival_airport = django_filters.CharFilter(field_name='airportArrival', label='Arrival Airport', lookup_expr='exact', required=True)
+    departure_date = django_filters.DateTimeFilter(field_name='departure_date', label='Departure Time', lookup_expr='exact', required=True)
+    return_date = django_filters.DateTimeFilter(field_name='departure_date', label='Return Time', method='filter_return_date', required=False)
+
+    class Meta:
+        model = Flight
+        fields = ['airportDeparture', 'airportArrival', 'departure_date', 'return_date']
+
+    def filter_return_date(self, queryset, name, value):
+        if value:
+            return queryset.filter(departure_date=value)
+        return queryset
+
+    def filter_queryset(self, queryset):
+        if self.data.get('airportDeparture') and self.data.get('airportArrival') and self.data.get('departure_date'):
+            departure_airport = self.data.get('airportDeparture')
+            arrival_airport = self.data.get('airportArrival')
+            departure_date = self.data.get('departure_date')
+            return_date = self.data.get('return_date', None)
+            
+            flights_outbound = queryset.filter(airportDeparture=departure_airport, airportArrival=arrival_airport, departure_date=departure_date)
+
+            if return_date:
+                flights_inbound = queryset.filter(airportDeparture=arrival_airport, airportArrival=departure_airport, departure_date=return_date)
+            else:
+                flights_inbound = queryset.filter(airportDeparture=arrival_airport, airportArrival=departure_airport, departure_date=departure_date)
+
+            # جمع الرحلات التي تنتمي لنفس الطائرة
+            combined_flights = flights_outbound | flights_inbound
+
+            # تنظيم الرحلات بنفس الطائرة في التنسيق المطلوب
+            airplanes = set([flight.Airplane for flight in combined_flights])
+            result = []
+            for airplane in airplanes:
+                flights_for_airplane = combined_flights.filter(Airplane=airplane)
+                outbound_flight = flights_for_airplane.filter(airportDeparture=departure_airport).first()
+                inbound_flight = flights_for_airplane.filter(airportDeparture=arrival_airport).first()
+                if outbound_flight and inbound_flight:
+                    flight_data = {
+                        "outbound_flight_id": outbound_flight.id,
+                        "notes_outbound": outbound_flight.notes,
+                        "ratings_outbound": outbound_flight.ratings,
+                        "departure_date_outbound": outbound_flight.departure_date,
+                        "airportDeparture_outbound": outbound_flight.airportDeparture,
+                        "airportArrival_outbound": outbound_flight.airportArrival,
+                        "departure_city_outbound": outbound_flight.departure_city,
+                        "destination_city_outbound": outbound_flight.destination_city,
+                        "departure_country_outbound": outbound_flight.departure_country,
+                        "destination_country_outbound": outbound_flight.destination_country,
+                        "price_flight_outbound": outbound_flight.price_flight,
+                      #  "airline_name_outbound": outbound_flight.airline_name,
+
+                        "return_id": inbound_flight.id,
+                        "notes_return": inbound_flight.notes,
+                        "ratings_return": inbound_flight.ratings,
+                        "departure_date_return": inbound_flight.departure_date,
+                        "airportDeparture_return": inbound_flight.airportDeparture,
+                        "airportArrival_return": inbound_flight.airportArrival,
+                        "departure_city_return": inbound_flight.departure_city,
+                        "destination_city_return": inbound_flight.destination_city,
+                        "departure_country_return": inbound_flight.departure_country,
+                        "destination_country_return": inbound_flight.destination_country,
+                        "price_flight_return": inbound_flight.price_flight,
+                      #  "airline_name_return": inbound_flight.airline_name
+                    }
+                    result.append(flight_data)
+
+            return result
+        else:
+            return []
