@@ -57,7 +57,7 @@ def get_by_id_flights(request,pk) :
 @api_view(['GET'])  
 def get_all(request) :
    filterset=FlightsFilter(request.GET,queryset=Flight.objects.all().order_by('id')) #غيرتي من Flight to FlightSeatType
-   serializer=FlightSerializer(filterset.qs ,many=True)
+   serializer=FlightProfileSerializer(filterset.qs ,many=True)
    return Response({"flights":serializer.data})
 
 
@@ -403,9 +403,9 @@ def similar_flights(request, booking_id):
         airportArrival=outbound_flight.airportArrival
     ).exclude(id=outbound_flight.id).order_by('departure_date') #هيك بتروح الرحلة نفسها 
 
-    serializer = FlightSerializer(similar_flights, many=True)
+    serializer = FlightProfileSerializer(similar_flights, many=True)
     return Response(serializer.data)
-
+#
 
 
 
