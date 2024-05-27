@@ -35,7 +35,6 @@ def send_reminder_notification(sender, instance, created, **kwargs):
     if created:  # التأكد من أن هذا الحجز هو حجز جديد
         # حساب الوقت قبل الموعد المحدد (24 ساعة)
         reminder_time = instance.outbound_flight.departure_date - timezone.timedelta(hours=24)
-        # التحقق مما إذا كان الوقت الحالي يقع قبل وقت الإشعار
         if timezone.now() < reminder_time:
             # إرسال الإشعار باستخدام رمز FCM المتوفر
             fcm_token = instance.user.pushnotificationtoken.fcm_token
