@@ -205,15 +205,15 @@ def flight_explor(request):
    
 @api_view(['GET'])
 def flights_with_offers(request):
-    current_datetime = timezone.now()
+    current_datetime = timezone.now()  #خزنت الوقت الحالي  
 
-    # استخدام Prefetch لتحسين الاستعلامات
-    flights = Flight.objects.prefetch_related(
+    
+    flights = Flight.objects.prefetch_related(  # منشان ORM 
         Prefetch('offer_set', queryset=Offer.objects.filter(
             start_date__lte=current_datetime.date(),
             end_date__gte=current_datetime.date()
         ))
-    ).filter(offer__isnull=False).distinct().order_by('-offer__discount_percentage')
+    ).filter(offer__isnull=False).distinct().order_by('-offer__discount_percentage') # distinct يعني فريدة
 
     flights_data = []
     for flight in flights:
@@ -221,8 +221,8 @@ def flights_with_offers(request):
         offers_data = []
 
         for offer in flight.offer_set.all():
-            offer_start_datetime = timezone.make_aware(datetime.combine(offer.start_date, time.min))
-            offer_end_datetime = timezone.make_aware(datetime.combine(offer.end_date, time.max))
+            offer_start_datetime = timezone.make_aware(datetime.combine(offer.start_date, time.min)) # الكومبين منشان يندمج الوقت مع التاريج 
+            offer_end_datetime = timezone.make_aware(datetime.combine(offer.end_date, time.max)) 
 
             if offer_start_datetime <= current_datetime <= offer_end_datetime:
                 offer_data = {
@@ -968,7 +968,7 @@ def combined_recommendations(request):
 def get_recommendations1(user, data):
     # Implementation of the first recommendation logic
     # Extract user preferences from request data
-    user_current_city = data.get('current_city', '').capitalize().strip()
+    user_current_city = data.get('current_city', '').capitalize().strip()  # تكبير وازالة الفراغات
     price_preference = float(data.get('budget', 0))
     activity_preference = data.get('preferred_activity', '').capitalize().strip()
     climate_preference = data.get('preferred_climate', '').capitalize().strip()
