@@ -266,7 +266,7 @@ def flights_with_offers(request):
 #print(result)
 
 
-
+'''
 
 @api_view(['GET']) 
 def flights_with_offers(request):
@@ -307,7 +307,7 @@ def flights_with_offers(request):
             flights_data.append(flight_data)
 
     return Response(flights_data)
-
+'''
 
 
 
