@@ -26,6 +26,7 @@ from .serializer import FlightProfileSerializer
 from firebase_admin import messaging
 import firebase_admin
 from firebase_admin import credentials
+from django.db.models import Prefetch
 
 # Create your views here.
 @api_view(['GET'])
@@ -201,27 +202,28 @@ def flight_explor(request):
         flights = Flight.objects.all().order_by('-ratings')  
         serializer = FlightSerializerexplor(flights, many=True)
         return Response(serializer.data) 
-    
+   
 @api_view(['GET'])
 def flights_with_offers(request):
-   
     current_datetime = timezone.now()
 
-    
-    flights_with_offers = Flight.objects.filter(offer__isnull=False).distinct().order_by('-offer__discount_percentage')
+    # استخدام Prefetch لتحسين الاستعلامات
+    flights = Flight.objects.prefetch_related(
+        Prefetch('offer_set', queryset=Offer.objects.filter(
+            start_date__lte=current_datetime.date(),
+            end_date__gte=current_datetime.date()
+        ))
+    ).filter(offer__isnull=False).distinct().order_by('-offer__discount_percentage')
 
-    
     flights_data = []
-    for flight in flights_with_offers:
+    for flight in flights:
         flight_data = FlightSerializer(flight).data
         offers_data = []
 
         for offer in flight.offer_set.all():
-            
-            offer_start_datetime = make_aware(datetime.combine(offer.start_date, time.min))
-            offer_end_datetime = make_aware(datetime.combine(offer.end_date, time.max))
+            offer_start_datetime = timezone.make_aware(datetime.combine(offer.start_date, time.min))
+            offer_end_datetime = timezone.make_aware(datetime.combine(offer.end_date, time.max))
 
-            
             if offer_start_datetime <= current_datetime <= offer_end_datetime:
                 offer_data = {
                     'title': offer.title,
@@ -236,6 +238,8 @@ def flights_with_offers(request):
         if offers_data:
             flight_data['offers'] = offers_data
             flights_data.append(flight_data)
+
+    return Response(flights_data)
             
  ##############
      
