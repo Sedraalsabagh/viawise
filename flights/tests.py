@@ -1,132 +1,282 @@
-from django.test import TestCase, Client
-from django.core.exceptions import ValidationError
-from django.utils import timezone
+from django.test import TestCase
 from decimal import Decimal
-from datetime import timedelta
+from datetime import datetime, timedelta
 from theaccount.models import User
-from flights.models import Flight, Offer
-from .models import AgencyPolicy, Passenger, Booking, Payment
+from flights.models import (
+    Policy, Airline, SeatType, Airplane, Flight, Airport, 
+    FlightSchedule, RefundedPayment, Review, Offer
+)
 
-class TestAgencyPolicyModel(TestCase):
-
-    def test_agency_policy_creation(self):
-        policy = AgencyPolicy.objects.create(
-            policy_type='modify',
-            percentage=Decimal('10.00'),
-            duration=timedelta(days=3),
-            points=100,
-            points_offers=50,
-            conditions='Some conditions'
+class PolicyModelTest(TestCase):
+    def test_policy_creation(self):
+        policy = Policy.objects.create(
+            refundable=True,
+            exchangeable=True,
+            exchangeable_condition="Condition 1",
+            cancellation_period=timedelta(days=3)
         )
-        self.assertEqual(str(policy), 'modify policy')
+        self.assertTrue(policy.refundable)
+        self.assertTrue(policy.exchangeable)
+        self.assertEqual(policy.exchangeable_condition, "Condition 1")
+        self.assertEqual(policy.cancellation_period, timedelta(days=3))
 
-class TestPassengerModel(TestCase):
-
-    def test_passenger_creation(self):
-        passenger = Passenger.objects.create(
-            first_name='Jane',
-            last_name='Doe',
-            gender='Ms',
-            date_of_birth='1992-02-02',
-            passport_number='B98765432'
-        )
-        self.assertEqual(str(passenger), 'Jane Doe')
-
-class TestBookingModel(TestCase):
-
+class AirlineModelTest(TestCase):
     def setUp(self):
-        self.client = Client()
-        self.user = User.objects.create_user(username='testuser', password='password123')
-        self.passenger = Passenger.objects.create(
-            first_name='John',
-            last_name='Doe',
-            gender='Mr',
-            date_of_birth='1990-01-01',
-            passport_number='A12345678'
+        self.policy = Policy.objects.create(
+            refundable=True,
+            exchangeable=True,
+            exchangeable_condition="Condition 1",
+            cancellation_period=timedelta(days=3)
+        )
+
+    def test_airline_creation(self):
+        airline = Airline.objects.create(
+            airline_id=1,
+            airline_name="Test Airline",
+            description="This is a test airline",
+            policy=self.policy
+        )
+        self.assertEqual(airline.airline_id, 1)
+        self.assertEqual(airline.airline_name, "Test Airline")
+        self.assertEqual(airline.description, "This is a test airline")
+        self.assertEqual(airline.policy, self.policy)
+
+class SeatTypeModelTest(TestCase):
+    def test_seat_type_creation(self):
+        seat_type = SeatType.objects.create(
+            economy_capacity=100,
+            business_class_capacity=50,
+            first_class_capacity=10,
+            economy_weight_limit=30,
+            business_class_weight_limit=40,
+            first_class_weight_limit=50,
+            carry_on_bag_weight_limit=8,
+            excess_weight_fee=Decimal('22.00')
+        )
+        self.assertEqual(seat_type.economy_capacity, 100)
+        self.assertEqual(seat_type.business_class_capacity, 50)
+        self.assertEqual(seat_type.first_class_capacity, 10)
+        self.assertEqual(seat_type.economy_weight_limit, 30)
+        self.assertEqual(seat_type.business_class_weight_limit, 40)
+        self.assertEqual(seat_type.first_class_weight_limit, 50)
+        self.assertEqual(seat_type.carry_on_bag_weight_limit, 8)
+        self.assertEqual(seat_type.excess_weight_fee, Decimal('22.00'))
+        self.assertEqual(seat_type.economy_price_per_unit, 100)
+        self.assertEqual(seat_type.business_class_price_per_unit, 200)
+        self.assertEqual(seat_type.first_class_price_per_unit, 300)
+
+class AirplaneModelTest(TestCase):
+    def setUp(self):
+        self.seat_type = SeatType.objects.create(
+            economy_capacity=100,
+            business_class_capacity=50,
+            first_class_capacity=10
+        )
+        self.airline = Airline.objects.create(
+            airline_id=1,
+            airline_name="Test Airline",
+            description="This is a test airline",
+            policy=Policy.objects.create()
+        )
+
+    def test_airplane_creation(self):
+        airplane = Airplane.objects.create(
+            airplane_name="Boeing 747",
+            manufacturer="Boeing",
+            manufacturing_date="2020-01-01",
+            seats=self.seat_type,
+            airline=self.airline
+        )
+        self.assertEqual(airplane.airplane_name, "Boeing 747")
+        self.assertEqual(airplane.manufacturer, "Boeing")
+        self.assertEqual(str(airplane.manufacturing_date), "2020-01-01")
+        self.assertEqual(airplane.seats, self.seat_type)
+        self.assertEqual(airplane.airline, self.airline)
+
+class FlightModelTest(TestCase):
+    def setUp(self):
+        self.seat_type = SeatType.objects.create(
+            economy_capacity=100,
+            business_class_capacity=50,
+            first_class_capacity=10
+        )
+        self.airline = Airline.objects.create(
+            airline_id=1,
+            airline_name="Test Airline",
+            description="This is a test airline",
+            policy=Policy.objects.create()
+        )
+        self.airplane = Airplane.objects.create(
+            airplane_name="Boeing 747",
+            manufacturer="Boeing",
+            manufacturing_date="2020-01-01",
+            seats=self.seat_type,
+            airline=self.airline
+        )
+
+    def test_flight_creation(self):
+        flight = Flight.objects.create(
+            departure_date=datetime.now(),
+            Airplane=self.airplane,
+            duration=timedelta(hours=2),
+            airportDeparture="JFK",
+            airportArrival="LAX",
+            departure_city="New York",
+            destination_city="Los Angeles",
+            departure_country="USA",
+            destination_country="USA",
+            economy_remaining=100,
+            business_remaining=50,
+            first_remaining=10,
+            price_flight=Decimal('300.00')
+        )
+        self.assertEqual(flight.Airplane, self.airplane)
+        self.assertEqual(flight.airportDeparture, "JFK")
+        self.assertEqual(flight.airportArrival, "LAX")
+        self.assertEqual(flight.departure_city, "New York")
+        self.assertEqual(flight.destination_city, "Los Angeles")
+        self.assertEqual(flight.departure_country, "USA")
+        self.assertEqual(flight.destination_country, "USA")
+        self.assertEqual(flight.economy_remaining, 100)
+        self.assertEqual(flight.business_remaining, 50)
+        self.assertEqual(flight.first_remaining, 10)
+        self.assertEqual(flight.price_flight, Decimal('300.00'))
+
+class AirportModelTest(TestCase):
+    def test_airport_creation(self):
+        airport = Airport.objects.create(
+            airport_name="Los Angeles International Airport",
+            IATA_code="LAX",
+            contact_info="123-456-7890",
+            country="USA",
+            comment="This is a comment."
+        )
+        self.assertEqual(airport.airport_name, "Los Angeles International Airport")
+        self.assertEqual(airport.IATA_code, "LAX")
+        self.assertEqual(airport.contact_info, "123-456-7890")
+        self.assertEqual(airport.country, "USA")
+        self.assertEqual(airport.comment, "This is a comment.")
+
+class FlightScheduleModelTest(TestCase):
+    def setUp(self):
+        self.airport = Airport.objects.create(
+            airport_name="Los Angeles International Airport",
+            IATA_code="LAX",
+            contact_info="123-456-7890",
+            country="USA",
+            comment="This is a comment."
         )
         self.flight = Flight.objects.create(
-            flight_number='XY123',
-            departure='2024-06-01 10:00:00',
-            arrival='2024-06-01 12:00:00',
-            price_flight=Decimal('100.00'),
-            economy_remaining=10,
-            business_remaining=5,
-            first_remaining=2
+            departure_date=datetime.now(),
+            Airplane=Airplane.objects.create(
+                airplane_name="Boeing 747",
+                manufacturer="Boeing",
+                manufacturing_date="2020-01-01",
+                seats=SeatType.objects.create(economy_capacity=100, business_class_capacity=50, first_class_capacity=10),
+                airline=Airline.objects.create(airline_id=1, airline_name="Test Airline", description="This is a test airline", policy=Policy.objects.create())
+            ),
+            duration=timedelta(hours=2),
+            airportDeparture="JFK",
+            airportArrival="LAX",
+            departure_city="New York",
+            destination_city="Los Angeles",
+            departure_country="USA",
+            destination_country="USA",
+            economy_remaining=100,
+            business_remaining=50,
+            first_remaining=10,
+            price_flight=Decimal('300.00')
         )
-        self.booking = Booking.objects.create(
-            user=self.user,
-            Passenger=self.passenger,
-            outbound_flight=self.flight,
-            passenger_class='Economy',
-            trip_type='OW'
-        )
-        self.offer = Offer.objects.create(
+
+    def test_flight_schedule_creation(self):
+        flight_schedule = FlightSchedule.objects.create(
             flight=self.flight,
-            discount_percentage=10,
-            start_date=timezone.now() - timedelta(days=1),
-            end_date=timezone.now() + timedelta(days=1)
+            airport=self.airport,
+            duration=timedelta(hours=5),
+            comment="This is a comment."
         )
+        self.assertEqual(flight_schedule.flight, self.flight)
+        self.assertEqual(flight_schedule.airport, self.airport)
+        self.assertEqual(flight_schedule.duration, timedelta(hours=5))
+        self.assertEqual(flight_schedule.comment, "This is a comment.")
 
-    def test_booking_creation(self):
-        self.assertEqual(self.booking.status, 'PPD')
-        self.assertEqual(self.booking.total_cost, Decimal('100.00'))
-
-    def test_booking_availability(self):
-        self.booking.check_availability(self.booking.outbound_flight, self.booking.passenger_class)
-        self.flight.economy_remaining = 0
-        self.flight.save()
-        with self.assertRaises(ValidationError):
-            self.booking.check_availability(self.booking.outbound_flight, self.booking.passenger_class)
-
-    def test_booking_cost_calculation(self):
-        self.booking.calculate_initial_cost()
-        self.assertEqual(self.booking.total_cost, Decimal('100.00'))
-
-    def test_booking_apply_discounts(self):
-        self.booking.apply_discounts()
-        self.assertEqual(self.booking.total_cost, Decimal('90.00'))
-
-class TestPaymentModel(TestCase):
-
+class ReviewModelTest(TestCase):
     def setUp(self):
-        self.client = Client()
         self.user = User.objects.create_user(username='testuser', password='password123')
-        self.passenger = Passenger.objects.create(
-            first_name='John',
-            last_name='Doe',
-            gender='Mr',
-            date_of_birth='1990-01-01',
-            passport_number='A12345678'
-        )
         self.flight = Flight.objects.create(
-            flight_number='XY123',
-            departure='2024-06-01 10:00:00',
-            arrival='2024-06-01 12:00:00',
-            price_flight=Decimal('100.00'),
-            economy_remaining=10,
-            business_remaining=5,
-            first_remaining=2
+            departure_date=datetime.now(),
+            Airplane=Airplane.objects.create(
+                airplane_name="Boeing 747",
+                manufacturer="Boeing",
+                manufacturing_date="2020-01-01",
+                seats=SeatType.objects.create(economy_capacity=100, business_class_capacity=50, first_class_capacity=10),
+                airline=Airline.objects.create(airline_id=1, airline_name="Test Airline", description="This is a test airline", policy=Policy.objects.create())
+            ),
+            duration=timedelta(hours=2),
+            airportDeparture="JFK",
+            airportArrival="LAX",
+            departure_city="New York",
+            destination_city="Los Angeles",
+            departure_country="USA",
+            destination_country="USA",
+            economy_remaining=100,
+            business_remaining=50,
+            first_remaining=10,
+            price_flight=Decimal('300.00')
         )
-        self.booking = Booking.objects.create(
+
+    def test_review_creation(self):
+        review = Review.objects.create(
+            flight=self.flight,
             user=self.user,
-            Passenger=self.passenger,
-            outbound_flight=self.flight,
-            passenger_class='Economy',
-            trip_type='OW'
+            comment="Great flight!",
+            ratings=5
         )
-        self.payment = Payment.objects.create(
-            amount=Decimal('90.00'),
-            booking=self.booking,
-            user=self.user
+        self.assertEqual(review.flight, self.flight)
+        self.assertEqual(review.user, self.user)
+        self.assertEqual(review.comment, "Great flight!")
+        self.assertEqual(review.ratings, 5)
+
+class OfferModelTest(TestCase):
+    def setUp(self):
+        self.flight = Flight.objects.create(
+            departure_date=datetime.now(),
+            Airplane=Airplane.objects.create(
+                airplane_name="Boeing 747",
+                manufacturer="Boeing",
+                manufacturing_date="2020-01-01",
+                seats=SeatType.objects.create(economy_capacity=100, business_class_capacity=50, first_class_capacity=10),
+                airline=Airline.objects.create(airline_id=1, airline_name="Test Airline", description="This is a test airline", policy=Policy.objects.create())
+            ),
+            duration=timedelta(hours=2),
+            airportDeparture="JFK",
+            airportArrival="LAX",
+            departure_city="New York",
+            destination_city="Los Angeles",
+            departure_country="USA",
+            destination_country="USA",
+            economy_remaining=100,
+            business_remaining=50,
+            first_remaining=10,
+            price_flight=Decimal('300.00')
         )
 
-    def test_payment_creation(self):
-        self.assertEqual(str(self.payment), f"Payment ID: {self.payment.id}")
-
-    def test_payment_apply_modification_fee(self):
-        result = self.payment.apply_modification_fee(Decimal('10.00'))
-        self.assertTrue(result)
-        self.assertEqual(self.payment.amount, Decimal('80.00'))
-        result = self.payment.apply_modification_fee(Decimal('100.00'))
-        self.assertFalse(result)
-        self.assertEqual(self.payment.amount, Decimal('80.00'))
+    def test_offer_creation(self):
+        offer = Offer.objects.create(
+            title="Special Discount",
+            discount_percentage=Decimal('10.00'),
+            start_date=datetime.now().date(),
+            end_date=(datetime.now() + timedelta(days=10)).date(),
+            description="Limited time offer!",
+            conditions="Terms and conditions apply.",
+            duration=timedelta(days=10),
+            flight=self.flight
+        )
+        self.assertEqual(offer.title, "Special Discount")
+        self.assertEqual(offer.discount_percentage, Decimal('10.00'))
+        self.assertEqual(offer.start_date, datetime.now().date())
+        self.assertEqual(offer.end_date, (datetime.now() + timedelta(days=10)).date())
+        self.assertEqual(offer.description, "Limited time offer!")
+        self.assertEqual(offer.conditions, "Terms and conditions apply.")
+        self.assertEqual(offer.duration, timedelta(days=10))
+        self.assertEqual(offer.flight, self.flight)
