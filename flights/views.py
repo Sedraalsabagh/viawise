@@ -310,7 +310,7 @@ def flights_with_offers(request):
 
 
 
-"""
+
 
 @api_view(['GET'])
 def flights_offers(request):
@@ -347,7 +347,7 @@ def flight_details(request, flight_id1, flight_id2):
     serializer1 = FlightProfileSerializer(flight1)
     serializer2 = FlightProfileSerializer(flight2)
     return Response({"flight1": serializer1.data, "flight2": serializer2.data})
-"""
+'''
 @api_view(['GET'])
 def flight_details(request, flight_id1, flight_id2):
     try:
