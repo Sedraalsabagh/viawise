@@ -72,11 +72,9 @@ class UserBookingsAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user_bookings = Booking.objects.filter(user=request.user)
+        user_bookings = Booking.objects.filter(user=request.user).order_by('-creation_time')
         serializer = BookingSerializer3(user_bookings, many=True)
         return Response(serializer.data)
-
-
 
 
 
