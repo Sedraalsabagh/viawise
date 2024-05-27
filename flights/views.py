@@ -26,6 +26,10 @@ from .serializer import FlightProfileSerializer
 from firebase_admin import messaging
 import firebase_admin
 from firebase_admin import credentials
+from django.db.models import Prefetch
+from dotenv import load_dotenv
+import os
+
 
 # Create your views here.
 @api_view(['GET'])
@@ -56,7 +60,7 @@ def get_by_id_flights(request,pk) :
 @api_view(['GET'])  
 def get_all(request) :
    filterset=FlightsFilter(request.GET,queryset=Flight.objects.all().order_by('id')) #غيرتي من Flight to FlightSeatType
-   serializer=FlightSerializer(filterset.qs ,many=True)
+   serializer=FlightProfileSerializer(filterset.qs ,many=True)
    return Response({"flights":serializer.data})
 
 
@@ -201,27 +205,28 @@ def flight_explor(request):
         flights = Flight.objects.all().order_by('-ratings')  
         serializer = FlightSerializerexplor(flights, many=True)
         return Response(serializer.data) 
-    
+   
 @api_view(['GET'])
 def flights_with_offers(request):
-   
-    current_datetime = timezone.now()
+    current_datetime = timezone.now()  #خزنت الوقت الحالي  
 
     
-    flights_with_offers = Flight.objects.filter(offer__isnull=False).distinct().order_by('-offer__discount_percentage')
+    flights = Flight.objects.prefetch_related(  # منشان ORM 
+        Prefetch('offer_set', queryset=Offer.objects.filter(
+            start_date__lte=current_datetime.date(),
+            end_date__gte=current_datetime.date()
+        ))
+    ).filter(offer__isnull=False).distinct().order_by('-offer__discount_percentage') # distinct يعني فريدة
 
-    
     flights_data = []
-    for flight in flights_with_offers:
+    for flight in flights:
         flight_data = FlightSerializer(flight).data
         offers_data = []
 
         for offer in flight.offer_set.all():
-            
-            offer_start_datetime = make_aware(datetime.combine(offer.start_date, time.min))
-            offer_end_datetime = make_aware(datetime.combine(offer.end_date, time.max))
+            offer_start_datetime = timezone.make_aware(datetime.combine(offer.start_date, time.min)) # الكومبين منشان يندمج الوقت مع التاريج 
+            offer_end_datetime = timezone.make_aware(datetime.combine(offer.end_date, time.max)) 
 
-            
             if offer_start_datetime <= current_datetime <= offer_end_datetime:
                 offer_data = {
                     'title': offer.title,
@@ -236,36 +241,36 @@ def flights_with_offers(request):
         if offers_data:
             flight_data['offers'] = offers_data
             flights_data.append(flight_data)
+
+    return Response(flights_data)
             
- ##############
-     
+ 
 
+load_dotenv()
+admin_sdk_path  =os.getenv('ADMIN_SDK_PATH')
+cred = credentials.Certificate(admin_sdk_path)
+firebase_admin.initialize_app(cred)
 
-#cred = credentials.Certificate(r"C:\Users\admin\OneDrive\Desktop\fcm4flutter-57cd2-firebase-adminsdk-nvrod-0c1c9a25e9.json")
-
-#firebase_admin.initialize_app(cred)
-        
-#def send_push_notification(token, title, body):
- #   message = messaging.Message(
-  #      notification=messaging.Notification(title=title, body=body),
-   #     token=token,
-   # )
+def send_push_notification(token, title, body):
+    message = messaging.Message(
+        notification=messaging.Notification(title=title, body=body),
+        token=token,
+    )
     
-   # try:
-    #    response = messaging.send(message)
-     #   return {'status': 'success', 'response': response}
-   # except Exception as e:
-    #    return {'status': 'error', 'error': str(e)}                
+    try:
+        response = messaging.send(message)
+        return {'status': 'success', 'response': response}
+    except Exception as e:
+        return {'status': 'error', 'error': str(e)}                
 
-  #  return Response(flights_data)
-#result = send_push_notification("ftmGf_xeSS23JuN0AKGcTB:APA91bFGPgf00v4BgXFj41qqJz60Qp6p_1NK0qRCnfIyY55JIWc0h-C0dLu5HmEr1INvHEcBqi3ELhCNgD6nktB9Xso07gk0a3uNUSR4ewNcm6IvOAmq6wS0Nz0pV99gUBgnebEgT_Vr", "لانا الجدبةر", "نص الإشعار")
-#print(result)
+    return Response(flights_data)
+
+result = send_push_notification("ftmGf_xeSS23JuN0AKGcTB:APA91bFGPgf00v4BgXFj41qqJz60Qp6p_1NK0qRCnfIyY55JIWc0h-C0dLu5HmEr1INvHEcBqi3ELhCNgD6nktB9Xso07gk0a3uNUSR4ewNcm6IvOAmq6wS0Nz0pV99gUBgnebEgT_Vr", 'HI', 'this is offers')
+print(result)
 
 
+'''
 
-#############
-
-"""
 @api_view(['GET']) 
 def flights_with_offers(request):
     current_datetime = timezone.now()
@@ -305,8 +310,8 @@ def flights_with_offers(request):
             flights_data.append(flight_data)
 
     return Response(flights_data)
+'''
 
-"""
 
 
 
@@ -401,9 +406,9 @@ def similar_flights(request, booking_id):
         airportArrival=outbound_flight.airportArrival
     ).exclude(id=outbound_flight.id).order_by('departure_date') #هيك بتروح الرحلة نفسها 
 
-    serializer = FlightSerializer(similar_flights, many=True)
+    serializer = FlightProfileSerializer(similar_flights, many=True)
     return Response(serializer.data)
-
+#
 
 
 
@@ -964,7 +969,7 @@ def combined_recommendations(request):
 def get_recommendations1(user, data):
     # Implementation of the first recommendation logic
     # Extract user preferences from request data
-    user_current_city = data.get('current_city', '').capitalize().strip()
+    user_current_city = data.get('current_city', '').capitalize().strip()  # تكبير وازالة الفراغات
     price_preference = float(data.get('budget', 0))
     activity_preference = data.get('preferred_activity', '').capitalize().strip()
     climate_preference = data.get('preferred_climate', '').capitalize().strip()

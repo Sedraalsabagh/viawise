@@ -944,22 +944,21 @@ def make_booking(request):
             if Booking.objects.filter(Passenger=passenger, outbound_flight=outbound_flight, return_flight=return_flight).exists():
                 continue  
 
-            # حساب السعر الأساسي للرحلات
+            
             outbound_flight_price = outbound_flight.price_flight
             return_flight_price = 0
             if return_flight:
                 return_flight_price = return_flight.price_flight
             
-            # حساب السعر النهائي
+            
             total_cost = outbound_flight_price + return_flight_price
             
-            # التحقق من وجود عروض تنطبق على الرحلات
+            
             outbound_offer = Offer.objects.filter(flight=outbound_flight, start_date__lte=timezone.now(), end_date__gte=timezone.now()).first()
             return_offer = None
             if return_flight:
                 return_offer = Offer.objects.filter(flight=return_flight, start_date__lte=timezone.now(), end_date__gte=timezone.now()).first()
-            
-            # إذا وجد عرض، قم بحساب الخصم
+           
             if outbound_offer:
                 discount = outbound_flight_price * (outbound_offer.discount_percentage / 100)
                 total_cost -= discount
@@ -968,7 +967,7 @@ def make_booking(request):
                 discount = return_flight_price * (return_offer.discount_percentage / 100)
                 total_cost -= discount
 
-            # إنشاء الحجز وحفظ القيمة النهائية للسعر في الحجز
+         
             new_booking = Booking.objects.create(
                 user_id=user_id,
                 Passenger=passenger,
@@ -977,7 +976,7 @@ def make_booking(request):
                 passenger_class=booking_data.get('passenger_class'),
                 trip_type=booking_data.get('trip_type'),
                 status='PPD',
-                total_cost=total_cost  # تخزين السعر النهائي هنا
+                total_cost=total_cost 
             )
             bookings.append(new_booking)
 

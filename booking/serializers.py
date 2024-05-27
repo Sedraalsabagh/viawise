@@ -39,7 +39,7 @@ class BookingSerializer1(serializers.ModelSerializer):
 
     class Meta:
         model = Booking
-        fields = ['user', 'Passenger', 'outbound_flight', 'return_flight', 'trip_type', 'passenger_class','total_cost','booking_date']        
+        fields = ['user', 'Passenger', 'outbound_flight', 'return_flight', 'trip_type', 'passenger_class','total_cost','booking_date','id']        
         
 class AirlineSerializer2(serializers.ModelSerializer):
     class Meta:
@@ -58,7 +58,7 @@ class BookingSerializer2(serializers.ModelSerializer):
 
     class Meta:
         model = Booking
-        fields = ['user', 'Passenger', 'outbound_flight', 'return_flight', 'trip_type', 'passenger_class', 'total_cost', 'booking_date']
+        fields = ['user', 'Passenger', 'outbound_flight', 'return_flight', 'trip_type', 'passenger_class', 'total_cost', 'booking_date','id']
         
         
 ############my Booking         
@@ -74,7 +74,7 @@ class BookingSerializer3(serializers.ModelSerializer):
 
     class Meta:
         model = Booking
-        fields = ['user', 'Passenger', 'outbound_flight', 'return_flight', 'trip_type', 'passenger_class', 'total_cost', 'booking_date','status']
+        fields = ['user', 'Passenger', 'outbound_flight', 'return_flight', 'trip_type', 'passenger_class', 'total_cost', 'booking_date','status','id']
 
 
 '''
@@ -201,4 +201,4 @@ class BookingSerializer100(serializers.ModelSerializer):
 
     class Meta:
         model = Booking
-        fields = ['outbound_flight', 'return_flight', 'Passenger', 'total_cost']
+        fields = ['id','outbound_flight', 'return_flight', 'Passenger', 'total_cost']
