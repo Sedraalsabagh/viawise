@@ -118,7 +118,7 @@ celerybeat.pid
 
 # SageMath parsed files
 *.sage.py
-
+flights/fcm4flutter-57cd2-firebase-adminsdk-nvrod-0c1c9a25e9.json
 # Environments
 .env
 .venv
