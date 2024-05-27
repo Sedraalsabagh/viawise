@@ -245,29 +245,29 @@ def flights_with_offers(request):
      
 
 
-cred = credentials.Certificate(r"C:\Users\admin\OneDrive\Desktop\fcm4flutter-57cd2-firebase-adminsdk-nvrod-0c1c9a25e9.json")
-firebase_admin.initialize_app(cred)
+#cred = credentials.Certificate(r"C:\Users\admin\OneDrive\Desktop\fcm4flutter-57cd2-firebase-adminsdk-nvrod-0c1c9a25e9.json")
+#firebase_admin.initialize_app(cred)
 
-def send_push_notification(token, title, body):
-    message = messaging.Message(
-        notification=messaging.Notification(title=title, body=body),
-        token=token,
-    )
+#def send_push_notification(token, title, body):
+ #   message = messaging.Message(
+  #      notification=messaging.Notification(title=title, body=body),
+   #     token=token,
+   # )
     
-    try:
-        response = messaging.send(message)
-        return {'status': 'success', 'response': response}
-    except Exception as e:
-        return {'status': 'error', 'error': str(e)}                
+   # try:
+    #    response = messaging.send(message)
+     #   return {'status': 'success', 'response': response}
+    #except Exception as e:
+     #   return {'status': 'error', 'error': str(e)}                
 
-    return Response(flights_data)
+    #return Response(flights_data)
 
-result = send_push_notification("ftmGf_xeSS23JuN0AKGcTB:APA91bFGPgf00v4BgXFj41qqJz60Qp6p_1NK0qRCnfIyY55JIWc0h-C0dLu5HmEr1INvHEcBqi3ELhCNgD6nktB9Xso07gk0a3uNUSR4ewNcm6IvOAmq6wS0Nz0pV99gUBgnebEgT_Vr", 'HI', 'this is offers')
-print(result)
+#result = send_push_notification("ftmGf_xeSS23JuN0AKGcTB:APA91bFGPgf00v4BgXFj41qqJz60Qp6p_1NK0qRCnfIyY55JIWc0h-C0dLu5HmEr1INvHEcBqi3ELhCNgD6nktB9Xso07gk0a3uNUSR4ewNcm6IvOAmq6wS0Nz0pV99gUBgnebEgT_Vr", 'HI', 'this is offers')
+#print(result)
 
 
 
-"""
+
 @api_view(['GET']) 
 def flights_with_offers(request):
     current_datetime = timezone.now()
@@ -308,9 +308,9 @@ def flights_with_offers(request):
 
     return Response(flights_data)
 
+
+
 """
-
-
 
 @api_view(['GET'])
 def flights_offers(request):
@@ -347,7 +347,7 @@ def flight_details(request, flight_id1, flight_id2):
     serializer1 = FlightProfileSerializer(flight1)
     serializer2 = FlightProfileSerializer(flight2)
     return Response({"flight1": serializer1.data, "flight2": serializer2.data})
-'''
+"""
 @api_view(['GET'])
 def flight_details(request, flight_id1, flight_id2):
     try:
